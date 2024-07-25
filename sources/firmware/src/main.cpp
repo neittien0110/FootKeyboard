@@ -33,29 +33,17 @@ KEYSTATUS pedal04_status = KEYFREE;
 int i;
 
 void Pepal01_Event(){
-    if (bleKeyboard.isConnected())
-    {
-        bleKeyboard.print('1');
-    }
+    bleKeyboard.print('1');
 }
 
 void Pepal02_Event(){
-    if (bleKeyboard.isConnected())
-    {
-        bleKeyboard.print('2');
-    }
+    bleKeyboard.print('2');
 }
 void Pepal03_Event(){
-    if (bleKeyboard.isConnected())
-    {
-        bleKeyboard.print('3');
-    }
+    bleKeyboard.print('3');
 }
 void Pepal04_Event(){
-    if (bleKeyboard.isConnected())
-    {
-        bleKeyboard.print('4');
-    }
+    bleKeyboard.print('4');
 }
 
 /** Kết nối với thiết bị */
