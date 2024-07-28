@@ -12,7 +12,16 @@
 #define PIN_VAR1 0
 #define PIN_VAR2 3
 
+/**
+ * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
+ */
 BleKeyboard bleKeyboard("Foot keyboard", "Bluetooth Device Manufacturer", 100);
+
+/**
+ * @brief Trạng thái tích cực theo mức. Ví dụ 0, 1. 
+ * @example Ví dụ  digitalRead(3) == PEDAL_ACTIVE_LOGIC
+ */
+#define PEDAL_ACTIVE_LOGIC 0
 
 enum KEYSTATUS
 {
@@ -22,6 +31,9 @@ enum KEYSTATUS
     KEYUP = 3,
 };
 
+/**
+ * @brief Trạng thái hoạt động của 4 pedal
+ */
 KEYSTATUS pedal01_status = KEYFREE;
 KEYSTATUS pedal02_status = KEYFREE;
 KEYSTATUS pedal03_status = KEYFREE;
@@ -54,11 +66,11 @@ void setup()
 /** Xác định trạng thái phim bấm trong chu trình DOWN, PRESS, UP, FREE */
 KEYSTATUS DetectKeyWordflow(uint8_t pre, uint8_t cur)
 {
-    if (pre == 1 && cur == 0)
+    if (pre != PEDAL_ACTIVE_LOGIC && cur == PEDAL_ACTIVE_LOGIC)
         return KEYDOWN;
-    else if (pre== 0 && cur == 0)
+    else if (pre == PEDAL_ACTIVE_LOGIC && cur == PEDAL_ACTIVE_LOGIC)
         return KEYPRESS;
-    else if (pre== 0 && cur == 1)
+    else if (pre == PEDAL_ACTIVE_LOGIC && cur != PEDAL_ACTIVE_LOGIC)
         return KEYUP;
     else
         return KEYFREE;
@@ -70,12 +82,17 @@ KEYSTATUS DetectKeyWordflow(uint8_t pre, uint8_t cur)
  * @param Pin_Pedal Chân pin của Pedal. Ví dụ 1, 2, 3
  * @return unsigned byte  Giá trị đọc được. 0, 1
  */
-int ReadPedal(uint8_t Pin_Pedal)
+int ReadPedal(uint8_t Pin_Pedal) 
 {
     int tmp;
     int current_status;
     // chống nhảy phím
     current_status = digitalRead(Pin_Pedal);
+    // nếu phím chưa bấm thì bỏ qua
+    if (current_status != PEDAL_ACTIVE_LOGIC)  {
+        return !PEDAL_ACTIVE_LOGIC;
+    }
+    // bảo đảm phím đã được bấm và duy trì đủ lâu
     for (i = 0; i < 5; i++)
     {
         tmp = digitalRead(Pin_Pedal);
@@ -88,8 +105,6 @@ int ReadPedal(uint8_t Pin_Pedal)
     }
     return current_status;
 }
-
-
 
 /**
  * @brief Đọc giá trị từ pedal
