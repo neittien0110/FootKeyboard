@@ -1,6 +1,9 @@
 /**
  * 
- * Lưu ý:  Không sử dụng hàm Delay trong chương trình con ngắt. Nếu không sẽ làm watchdog khởi động lại esp
+ * Issue 1:  Không sử dụng hàm Delay trong chương trình con ngắt. Nếu không sẽ làm watchdog khởi động lại esp
+ * Issue 2:  Không tạm thời cấm toàn bộ ngắt và cho phép ngắt bằng cắp 2 hàm noInterrupts();  interrupts();  vì bleKeyboard sử dụng
+ * Issue 3:  THêm tụ lọc 104 vào pedal thì giải quyết được nhảy phím với 1 pedal, nhưng vẫn nhảy phím với pedal còn lại
+ * BUG: Chống nhảy phím pedal bằng tụ lọc thất bại. Sử dụng tụ 104, 472pF, 273 pF vẫn nhảy phím mắc ở phía pedal, breadboard, ở sát chân pin INPUT vẫn ko được. Cần dùng Oscilloscope để debug. Firmware thì ổn rồi
  */
 #include <Arduino.h>
 #include <BleKeyboard.h>
@@ -25,12 +28,8 @@ enum KEYSTATUS
     KEYUP = 3,
 };
 
-KEYSTATUS pedal01_status = KEYFREE;
-KEYSTATUS pedal02_status = KEYFREE;
-KEYSTATUS pedal03_status = KEYFREE;
-KEYSTATUS pedal04_status = KEYFREE;
-
 int i;
+
 
 void Pepal01_Event(){
     bleKeyboard.print('1');
@@ -85,7 +84,7 @@ void setup()
     delay(100);
 
     // 4 chân pedal có chức năng đóng/cắt, nối vào các chân pin dạng INPUT với điện trở kéo lên bên trong
-    pinMode(PIN_PEDAL01, INPUT_PULLUP);
+    pinMode(PIN_PEDAL01, INPUT);
     pinMode(PIN_PEDAL02, INPUT_PULLUP);
     pinMode(PIN_PEDAL03, INPUT_PULLUP);
     pinMode(PIN_PEDAL04, INPUT_PULLUP);
