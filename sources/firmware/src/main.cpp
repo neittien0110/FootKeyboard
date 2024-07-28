@@ -96,9 +96,12 @@ void setup()
     digitalWrite(LED_BUILTIN, LOW);
     delay(100);
 
-    // 4 chân pedal có chức năng đóng/cắt, nối vào các chân pin dạng INPUT với điện trở kéo lên bên trong
+    // Khởi tạo trạng thái cho các chân pedal có chức năng đóng/cắt:
+    // - nối vào các chân pin dạng INPUT với điện trở kéo lên bên trong
+    // - trạng thái ban đầu là nhả phím
     for (i = 0 ; i < MAX_BUTTONS; i++) {
         pinMode(button_pins[i], INPUT_PULLUP);
+        button_status[i] = KEYFREE;
     }
     
     // 2 nối vào các chân pin dạng INPUT với điện trở kéo xuống ở ngoài board
@@ -122,98 +125,6 @@ KEYSTATUS DetectKeyWordflow(uint8_t pre, uint8_t cur)
         return KEYUP;
     else
         return KEYFREE;
-}
-
-/**
- * @brief Đọc giá trị từ pedal
- * @details hàm cấp thấp chống nhảy phím với 2 trạng thái bấm, nhả
- * @param Pin_Pedal Chân pin của Pedal. Ví dụ 1, 2, 3
- * @return unsigned byte  Giá trị đọc được. 0, 1
- */
-int ReadPedal(uint8_t Pin_Pedal)
-{
-    static uint8_t i;
-    int tmp;
-    int current_status;
-    // chống nhảy phím
-    current_status = digitalRead(Pin_Pedal);
-    // nếu phím chưa bấm thì bỏ qua
-    //if (current_status != PEDAL_ACTIVE_LOGIC)  {
-    //    return !PEDAL_ACTIVE_LOGIC;
-    //}
-    // bảo đảm phím đã được bấm và duy trì đủ lâu    
-    for (i = 0; i < 5; i++)
-    {
-        tmp = digitalRead(Pin_Pedal);
-        if (tmp != current_status)
-        {
-            i = 0;
-            current_status = tmp;
-        }
-        delay(5);
-    }
-    return current_status;
-}
-
-
-
-/**
- * @brief Đọc giá trị từ pedal
- * @details hàm cấp cao 4 trạng thái bấm, nhả, giữ
- * @param Pin_Pedal Chân pin của Pedal. Ví dụ 1, 2, 3
- * @return int  Giá trị đọc được. 0, 1
- */
-void GetKeyPad01(KEYSTATUS & pedal )
-{
-    static uint8_t current_status; // Trạng thái mới của phim 
-    static uint8_t previous_status; // Trạng thái cũ của phim 
-
-    previous_status = current_status;    
-    current_status = ReadPedal(PIN_PEDAL01);
-    pedal = DetectKeyWordflow(previous_status, current_status);
-}
-
-/**
- * @brief Đọc giá trị từ pedal
- * @details hàm cấp cao 4 trạng thái bấm, nhả, giữ
- * @param Pin_Pedal Chân pin của Pedal. Ví dụ 1, 2, 3
- * @return int  Giá trị đọc được. 0, 1
- */
-void GetKeyPad02(KEYSTATUS & pedal )
-{
-    static uint8_t current_status; // Trạng thái mới của phim 
-    static uint8_t previous_status; // Trạng thái cũ của phim 
-
-    previous_status = current_status;  
-    current_status = ReadPedal(PIN_PEDAL02);
-    pedal = DetectKeyWordflow(previous_status, current_status);     
-}
-
-void GetKeyPad03(KEYSTATUS & pedal )
-{
-    static uint8_t current_status; // Trạng thái mới của phim 
-    static uint8_t previous_status; // Trạng thái cũ của phim 
-
-    previous_status = current_status;
-    current_status = ReadPedal(PIN_PEDAL03);  
-    pedal = DetectKeyWordflow(previous_status, current_status);
-
-}
-
-/**
- * @brief Đọc giá trị từ pedal
- * @details hàm cấp cao 4 trạng thái bấm, nhả, giữ
- * @param Pin_Pedal Chân pin của Pedal. Ví dụ 1, 2, 3
- * @return int  Giá trị đọc được. 0, 1
- */
-void GetKeyPad04(KEYSTATUS & pedal )
-{
-    static uint8_t current_status; // Trạng thái mới của phim 
-    static uint8_t previous_status; // Trạng thái cũ của phim 
-
-    previous_status = current_status;     
-    current_status = ReadPedal(PIN_PEDAL04);
-    pedal = DetectKeyWordflow(previous_status, current_status);
 }
 
 void loop()
