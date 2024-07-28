@@ -10,17 +10,14 @@
 #define LED_BUILTIN 8
 #define BUTTON_BOOT 9
 
+#define MAX_BUTTONS 4       // Số lượng pedal/nút bấm tối đa
+
 #define PIN_PEDAL01 1       // Kết nối tới pedal số 1
 #define PIN_PEDAL02 2       // Kết nối tới pedal số 2
 #define PIN_PEDAL03 10      // Kết nối tới pedal số 3
 #define PIN_PEDAL04 7       // Kết nối tới pedal số 4
 #define PIN_VAR1 0          // Kết nối tới biến trở / cảm biến lực FSR
 #define PIN_VAR2 3          // Kết nối tới biến trở / cảm biến lực FSR
-
-/**
- * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
- */
-BleKeyboard bleKeyboard("Foot keyboard", "Bluetooth Device Manufacturer", 100);
 
 /**
  * @brief Trạng thái tích cực theo mức. Ví dụ 0, 1. 
@@ -36,6 +33,20 @@ enum KEYSTATUS
     KEYPRESS = 2,
     KEYUP = 3,
 };
+
+const uint button_pins[MAX_BUTTONS] = {PIN_PEDAL01, PIN_PEDAL02, PIN_PEDAL03, PIN_PEDAL04};
+uint button_prevalues[MAX_BUTTONS];  /// Giá trị trước đó, ở dạng digital 0/1 của nút bấm
+uint button_curvalues[MAX_BUTTONS];  /// Giá trị hiện thời, ở dạng digital 0/1 của nút bấm
+KEYSTATUS button_status[MAX_BUTTONS];/// Trạng thái hiện thời của các nút bấm
+int i;
+
+
+/**
+ * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
+ */
+BleKeyboard bleKeyboard("Foot keyboard", "Bluetooth Device Manufacturer", 100);
+
+
 
 /**
  * @brief Trạng thái hoạt động của 4 pedal
@@ -86,11 +97,10 @@ void setup()
     delay(100);
 
     // 4 chân pedal có chức năng đóng/cắt, nối vào các chân pin dạng INPUT với điện trở kéo lên bên trong
-    pinMode(PIN_PEDAL01, INPUT_PULLUP);
-    pinMode(PIN_PEDAL02, INPUT_PULLUP);
-    pinMode(PIN_PEDAL03, INPUT_PULLUP);
-    pinMode(PIN_PEDAL04, INPUT_PULLUP);
-
+    for (i = 0 ; i < MAX_BUTTONS; i++) {
+        pinMode(button_pins[i], INPUT_PULLUP);
+    }
+    
     // 2 nối vào các chân pin dạng INPUT với điện trở kéo xuống ở ngoài board
     pinMode(PIN_VAR1, INPUT);
     pinMode(PIN_VAR2, INPUT);
@@ -208,15 +218,24 @@ void GetKeyPad04(KEYSTATUS & pedal )
 
 void loop()
 {
+    static uint8_t tmp;
+    static uint8_t isDown;
 
-    // Lấy trạng thái pedal
-    GetKeyPad01(pedal01_status);
-    // Lấy trạng thái pedal
-    GetKeyPad02(pedal02_status);
-    // Lấy trạng thái pedal
-    GetKeyPad03(pedal03_status);
-    // Lấy trạng thái pedal
-    GetKeyPad04(pedal04_status);            
+    // đọc trạng thái của cả 4 nút
+    for (i = 0 ; i < MAX_BUTTONS; i++) {
+        // Lấy giá trị phím bấm mới
+        tmp = digitalRead(button_pins[i]);
+        // Nếu 3 lần đọc liên tiếp có dạng 010 hoặc 101 thì chuyển về 000 hoặc 111 tương ứng
+        if ((tmp == button_prevalues[i]) && (tmp != button_curvalues[i]) ) {
+            button_curvalues[i] = tmp;
+        };
+        //Lưu lại lịch sử, chóng nhảy phím
+        button_prevalues[i] = button_curvalues[i];
+        button_curvalues[i] = tmp;
+
+        // Xác định trạng thái phím
+        button_status[i] = DetectKeyWordflow(button_prevalues[i], button_curvalues[i]);
+    }    
 
 #ifdef DEBUGME
     Serial.print(pedal01_status);   Serial.print(",");
@@ -225,38 +244,39 @@ void loop()
     Serial.print(pedal04_status);   Serial.println(",");
 #endif
 
-    // Đèn hiệu báo
-    if ((pedal01_status == KEYPRESS) 
-        || (pedal02_status == KEYPRESS) 
-       // || (pedal03_status == KEYPRESS) 
-       // || (pedal04_status == KEYPRESS)
-    )
-        digitalWrite(LED_BUILTIN, LOW);
-    else
-        digitalWrite(LED_BUILTIN, HIGH);
-
-    if (bleKeyboard.isConnected())
+    isDown = false;
+    if (button_status[0] == KEYDOWN)
     {
-        if (pedal01_status == KEYDOWN)
-        {
-            bleKeyboard.write(KEY_PAGE_DOWN); 
-            // bleKeyboard.print("Hello world");
-        }
-        if (pedal02_status == KEYDOWN)
-        {
-            bleKeyboard.write(KEY_PAGE_UP); 
-        }
-        if (pedal03_status == KEYDOWN)
-        {
-            bleKeyboard.write(KEY_RETURN);  
-        }
-        if (pedal04_status == KEYDOWN)
-        {
-            bleKeyboard.press(KEY_LEFT_CTRL);
-            bleKeyboard.press(KEY_F4);
-            delay(100);
-            bleKeyboard.releaseAll();
-        }                        
-        delay(100);
+        bleKeyboard.write(KEY_PAGE_DOWN); 
+        isDown = true;
+    }
+    if (button_status[1] == KEYDOWN)
+    {
+        bleKeyboard.write(KEY_PAGE_UP); 
+        isDown = true;        
+    }
+    if (button_status[2] == KEYDOWN)
+    {
+        bleKeyboard.write(KEY_RETURN);  
+        isDown = true;        
+    }
+    if (button_status[3] == KEYDOWN)
+    {
+        bleKeyboard.press(KEY_LEFT_CTRL);
+        bleKeyboard.press(KEY_F4);
+        delay(10);
+        bleKeyboard.releaseAll();
+        isDown = true;        
+    }
+
+    // Nếu có phím được bấm thì mới cần delay để tránh xử lý 2 phím liên tiếp, còn không thì bỏ qua
+    // Có cần thiết không nhỉ?
+    if (isDown) {
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(200);
+    }        
+    else {
+        digitalWrite(LED_BUILTIN, HIGH);    
+        delay(15);        
     }
 }
