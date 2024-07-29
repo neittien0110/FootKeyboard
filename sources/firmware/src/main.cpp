@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include <BleKeyboard.h>
 
-//#define DEBUGME
+//#define DEBUG
 
 #define LED_BUILTIN 8
 #define BUTTON_BOOT 9
@@ -89,8 +89,11 @@ void setup()
     Serial.println("Starting BLE work!");
 #endif
 
-    // Kết nối thiết bị liên tục cho tới khi thành công.
-    TryToConnect();    
+    // Kết nối thiết bị liên tục cho tới khi thành công.    
+    TryToConnect(); 
+#ifdef DEBUG    
+    Serial.println("BLE: connected");
+#endif    
 
     // Led sáng,  báo hiệu kết nối bluetooth thành công
     digitalWrite(LED_BUILTIN, LOW);
@@ -108,10 +111,13 @@ void setup()
     pinMode(PIN_VAR1, INPUT);
     pinMode(PIN_VAR2, INPUT);
 
-    pinMode(LED_BUILTIN, OUTPUT);
+    // Đèn báo hiệu sẵn sàng
     digitalWrite(LED_BUILTIN, LOW);
     sleep(1);
     digitalWrite(LED_BUILTIN, HIGH);
+#ifdef DEBUG       
+    Serial.println("in loop key press..");
+#endif    
 }
 
 /** Xác định trạng thái phim bấm trong chu trình DOWN, PRESS, UP, FREE */
@@ -148,12 +154,15 @@ void loop()
         button_status[i] = DetectKeyWordflow(button_prevalues[i], button_curvalues[i]);
     }    
 
-#ifdef DEBUGME
-    Serial.print(pedal01_status);   Serial.print(",");
-    Serial.print(pedal02_status);   Serial.print(",");
-    Serial.print(pedal03_status);   Serial.print(",");
-    Serial.print(pedal04_status);   Serial.println(",");
-#endif
+#ifdef DEBUG
+        Serial.print(button_status[i]);
+        Serial.print(",");
+#endif        
+    }    
+
+#ifdef DEBUG    
+    Serial.println("");
+#endif    
 
     isDown = false;
     if (button_status[0] == KEYDOWN)
