@@ -38,8 +38,11 @@ const uint button_pins[MAX_BUTTONS] = {PIN_PEDAL01, PIN_PEDAL02, PIN_PEDAL03, PI
 uint button_prevalues[MAX_BUTTONS];  /// Giá trị trước đó, ở dạng digital 0/1 của nút bấm
 uint button_curvalues[MAX_BUTTONS];  /// Giá trị hiện thời, ở dạng digital 0/1 của nút bấm
 KEYSTATUS button_status[MAX_BUTTONS];/// Trạng thái hiện thời của các nút bấm
-int i;
 
+/// @brief Thời điểm của lần lặp trước đó
+unsigned long TimeOfPreLoop;
+
+int i;
 
 /**
  * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
@@ -83,11 +86,8 @@ void setup()
     // Cấu hình cho chân pin led mặc định
     pinMode(LED_BUILTIN, OUTPUT);
 
-#ifdef DEBUGME
-    // Thiết lập thông tin debug
+    // Thiết lập kếnh cấu hình phím và debug
     Serial.begin(115200);
-    Serial.println("Starting BLE work!");
-#endif
 
     // Kết nối thiết bị liên tục cho tới khi thành công.    
     TryToConnect(); 
@@ -110,6 +110,9 @@ void setup()
     // 2 nối vào các chân pin dạng INPUT với điện trở kéo xuống ở ngoài board
     pinMode(PIN_VAR1, INPUT);
     pinMode(PIN_VAR2, INPUT);
+
+    // Đánh dấu thời điểm bắt đầu chạy vòng lặp. 
+    TimeOfPreLoop = millis();
 
     // Đèn báo hiệu sẵn sàng
     digitalWrite(LED_BUILTIN, LOW);
@@ -136,7 +139,16 @@ KEYSTATUS DetectKeyWordflow(uint8_t pre, uint8_t cur)
 void loop()
 {
     static uint8_t tmp;
-    static uint8_t isDown;
+    static uint8_t isDown;      // = true nếu có 1 nút bấm/pedal nào đó được bấm
+
+    // Lấy thời điểm hiện tại
+    unsigned long currentMillis = millis();
+
+    if ( (isDown && (currentMillis - TimeOfPreLoop < 200))   // Nếu có phím bấm thì phải 200ms mới chạy lại
+        || (!isDown && (currentMillis - TimeOfPreLoop < 20))) // Nếu không bấm phím thì cứ 20ms lại kiểm tra lại
+    {    
+        return;
+    }
 
     // đọc trạng thái của cả 4 nút
     for (i = 0 ; i < MAX_BUTTONS; i++) {
@@ -152,7 +164,6 @@ void loop()
 
         // Xác định trạng thái phím
         button_status[i] = DetectKeyWordflow(button_prevalues[i], button_curvalues[i]);
-    }    
 
 #ifdef DEBUG
         Serial.print(button_status[i]);
