@@ -136,10 +136,32 @@ KEYSTATUS DetectKeyWordflow(uint8_t pre, uint8_t cur)
         return KEYFREE;
 }
 
+/**
+ * @brief Chu kì quét đọc giá trị của tất cả các phím/pedal. Đơn vi ms.
+ * @details Mỗi lượt quét toàn bộ bàn phím, không delay. Sau đó lượng thời gian này dùng để dợi,
+ *          trước khi thực hiện lượt quét bàn phím tiếp theo
+ * @example 50 (mất phím) 
+ *          30 (thỉnh thoảng mất) 
+ *          20 (khả dĩ nhưng lúc mới kết nối, hoặc lâu lâu mới bấm lại thì mất các phím đầu)
+ *          15 có vẻ ôn nhất
+ *          10 dễ mất phím
+ */
+#define PERIOD_OF_BUTTON_SCAN_LOOP  15
+
 void loop()
 {
     static uint8_t tmp;
     static uint8_t isDown;      // = true nếu có 1 nút bấm/pedal nào đó được bấm
+
+    // Lấy thời điểm hiện tại
+    unsigned long currentMillis = millis();
+
+    if ( (isDown && (currentMillis - TimeOfPreLoop < 200))   // Nếu có phím bấm thì phải 200ms mới chạy lại
+        || (!isDown && (currentMillis - TimeOfPreLoop < PERIOD_OF_BUTTON_SCAN_LOOP))) // Nếu không bấm phím thì cứ 50ms lại kiểm tra lại
+    {    
+        return;
+    }
+    TimeOfPreLoop = currentMillis;// Đã vượt qua none-blocking delay
 
     // đọc trạng thái của cả 4 nút
     for (i = 0 ; i < MAX_BUTTONS; i++) {
@@ -166,15 +188,6 @@ void loop()
     Serial.println("");
 #endif    
 
-    // Lấy thời điểm hiện tại
-    unsigned long currentMillis = millis();
-
-    if ( (isDown && (currentMillis - TimeOfPreLoop < 200))   // Nếu có phím bấm thì phải 200ms mới chạy lại
-        || (!isDown && (currentMillis - TimeOfPreLoop < 20))) // Nếu không bấm phím thì cứ 20ms lại kiểm tra lại
-    {    
-        return;
-    }
-
     isDown = false;
     if (button_status[0] == KEYDOWN)
     {
@@ -200,8 +213,7 @@ void loop()
         isDown = true;        
     }
 
-    // Nếu có phím được bấm thì mới cần delay để tránh xử lý 2 phím liên tiếp, còn không thì bỏ qua
-    // Có cần thiết không nhỉ?
+    // Bật tắt đèn tùy theo bấm phím
     if (isDown) {
         digitalWrite(LED_BUILTIN, LOW);
     }        
