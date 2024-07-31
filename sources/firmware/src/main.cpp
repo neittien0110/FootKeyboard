@@ -287,7 +287,7 @@ void loop()
         return;
     }
 
-    // đọc trạng thái của cả 4 nút
+    //--------------PHASE 1: đọc trạng thái các nút bấm/pedal
     for (i = 0; i < MAX_BUTTONS; i++)
     {
         // Lấy giá trị phím bấm mới
@@ -303,32 +303,22 @@ void loop()
 
         // Xác định trạng thái phím
         button_status[i] = DetectKeyWordflow(button_prevalues[i], button_curvalues[i]);
-
+    }
 
     //--------------PHASE 2: hành động
     isDown = false;
-    if (button_status[0] == KEYDOWN)
-    {
-        
-        bleKeyboardBuilder.SendKeys(button_sendkeys[0]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
-        isDown = true;
-    }
-    if (button_status[1] == KEYDOWN)
-    {
-        bleKeyboardBuilder.SendKeys(button_sendkeys[1]);       //bleKeyboardBuilder.write(KEY_PAGE_UP);
-        isDown = true;
-    }
-    if (button_status[2] == KEYDOWN)
-    {
-        bleKeyboardBuilder.SendKeys(button_sendkeys[2]);       // bleKeyboardBuilder.write(KEY_RETURN);
-        isDown = true;
-    }
-    if (button_status[3] == KEYDOWN)
-    {
-        bleKeyboardBuilder.SendKeys(button_sendkeys[3]);       // bleKeyboardBuilder.press(KEY_LEFT_CTRL);  bleKeyboardBuilder.press(KEY_F4);  delay(10);  bleKeyboardBuilder.releaseAll();
-        isDown = true;
+    // đọc trạng thái của cả 4 nút
+    for (i = 0; i < MAX_BUTTONS; i++)
+    {    
+        if (button_status[i] == KEYDOWN)
+        {
+            
+            bleKeyboardBuilder.SendKeys(button_sendkeys[0]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
+            isDown = true;
+        }
     }
 
+    //--------------PHASE 3: hậu xử lý nếu cần
     // Nếu có phím được bấm thì mới cần delay để tránh xử lý 2 phím liên tiếp, còn không thì bỏ qua
     // Có cần thiết không nhỉ?
     if (isDown)
@@ -339,7 +329,6 @@ void loop()
     {
         digitalWrite(LED_BUILTIN, HIGH);
     }
-    
     
 #ifdef SERIAL_CONFIG
     // Cấu hình chức năng các phím/pedal qua Serial
