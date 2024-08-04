@@ -126,6 +126,11 @@ int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT 
     oi = 0;
     start_brace_i = -1; // <0 tức là chưa tìm thấy kí tự {
 
+    if (request == NULL) {
+        Serial.println("Debug: USER_FORMAT is null!");
+        return 0;
+    }
+
     while (true) {
         // Lấy ra kí tự
         ch = request[i];  
@@ -141,18 +146,12 @@ int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT 
             checksum = 0; 
             while (request[i] != '}' and (request[i] != 0)) { 
                 checksum = (checksum >> 1) + request[i] * (i - start_brace_i);               
-                // Serial.print(request[i]);
-                // Serial.print("*(");
-                // Serial.print(i);
-                // Serial.print("-");
-                // Serial.print(start_brace_i);
-                // Serial.print(") ==> checksum  = ");
-                // Serial.println(checksum); 
                 i++;
             }
-            // Nếu không tìm thấy, tức là lỗi cú pháp rồi, loại.
+            // Nếu không tìm thấy dấu đóng }, tức là lỗi cú pháp rồi, loại.
             if (request[i] == 0) {
                 oi = -start_brace_i;        // Lỗi ở vị trí dấu ngoặc
+                Serial.print("Debug: } not found.");
                 break;
             }
 
@@ -167,11 +166,19 @@ int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT 
                     }
                     command[oi] = checksum2codes[j].code ;   
                     oi++;
+                    // Đánh dấu đã xử lý xong ngoặc
+                    start_brace_i = -1; // Shift, Ctrl, Alt                    
                     break;
                 }
             }
-            // Đánh dấu đã xử lý xong ngoặc
-            start_brace_i = -1; // Shift, Ctrl, Alt
+            
+            // Nếu không tìm thấy cụm từ khóa, tức là lỗi cú pháp rồi, loại.
+            if (start_brace_i != -1) {
+                oi = -start_brace_i-1;        // Lỗi ở vị trí dấu ngoặc
+                Serial.print("Debug: checksum not found, ");
+                Serial.println(checksum);
+                break;
+            }
         }  else {
             command[oi] = request[i];
             oi++;
