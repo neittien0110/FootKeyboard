@@ -1,10 +1,6 @@
 logs/xvba_debug.log
 sources/firmware/.pio
-sources/firmware/.vscode/.browse.c_cpp.db*
-sources/firmware/.vscode/c_cpp_properties.json
-sources/firmware/.vscode/launch.json
-sources/firmware/.vscode/ipch
-sources/firmware/logs/xvba_debug.log
-sources/firmware/.gitignore
-.gitignore
-sources/firmware/.vscode/extensions.json
+sources/firmware/.vscode
+sources/firmware/logs
+
+sources/firmware/src/~$KeyCode.xlsm

@@ -36,6 +36,7 @@ class BleKeyboardBuilder : public BleKeyboard {
 public:
     BleKeyboardBuilder(std::string deviceName = "ESP32 Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
     void SendKeys(const ASCII_FORMAT * cmd);
+    static int ConvertFormat(const char * USER_FORMAT, char * ASCII_FORMAT);
 };
 
 #endif // ESP32_BLE_KEYBOARD_H

@@ -9,17 +9,20 @@
  *   - Sử dụng máy tính gửi lệnh serial ở tốc độ 115200, 8bit, 0 stop bit.
  *   - Cú pháp lệnh:  <button>=<userformat>
  *     Lưu ý rằng cú pháp này cho giao tiếp máy-máy, đòi hỏi chuỗi phải chính xác.
- *     <userformat> theo cú pháp <https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.sendkeys>
- *   - Ví dụ lệnh: PEDAL1=a
+ *     <userformat> theo cú pháp <https://github.com/neittien0110/FootKeyboard/tree/master/sources/firmware>
+ *   - Ví dụ lệnh: PEDAL1=Chao
  *   - Ví dụ lệnh: PEDAL2={ENTER}
- *   - Ví dụ lệnh: PEDAL3=^F4
- *   - Ví dụ lệnh: PEDAL3=+EC
+ *   - Ví dụ lệnh: PEDAL3={CTRL}{F4}{~CTRL}
+ *   - Ví dụ lệnh: PEDAL3={ATL}{SHIFT}EC{~ATL}{~SHIFT}
  * Thuật toán mã kĩ tự
  *           USER_FORMAT  -------------------------> ASCII_FORMAT -----------------------------------> KEYCODE
  *     (clean, clear for user)     (simple, fast for cpu, encryp press|release keycode)               (standard)
  */
 #include <Arduino.h>
 #include "BleKeyboardBuilder.h"
+
+
+//#define DEBUG_SERIAL_SYNTAX      // Debug lỗi cú pháp của bộ phân tích USER_FORMAT
 
 #define LED_BUILTIN 8   //Led mặc định sẵn có trên ESP32-Super Mini
 #define BUTTON_BOOT 9   //Nút bấm mặc định sẵn có trên ESP32-Super Mini
@@ -63,12 +66,9 @@ unsigned long TimeOfPreLoop;
 /**
  * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
  */
-BleKeyboardBuilder bleKeyboardBuilder("Foot keyboard", "Bluetooth Device Manufacturer", 100);
+BleKeyboardBuilder bleKeyboardBuilder("Foot Keyboard", "Bluetooth Device Manufacturer", 100);
 
-#define SERIAL_CONFIG // Cấu hình nút bấm qua serial
-
-
-#ifdef  SERIAL_CONFIG
+#pragma region SERIAL_CONFIG
     /// Kích thước bộ đệm đọc lệnh từ Serial
     #define SERIAL_BUFFER_SIZE 10
     // Lệnh điều khiển nhận được từ Serial, có dạng userformat
@@ -85,9 +85,7 @@ BleKeyboardBuilder bleKeyboardBuilder("Foot keyboard", "Bluetooth Device Manufac
     USER_FORMAT * cmdvalue = NULL;    
     /// Chuỗi các kí tự cần gửi, ứng với mỗi pedal. Cú pháp đơn kí tự, là bộ mã ASCII nhưng tận dụng mã ascii điều khiển để thành mã phím bấm điều khiển
     ASCII_FORMAT button_sendkeys[MAX_BUTTONS][SERIAL_BUFFER_SIZE];  
-#endif
 
-#ifdef SERIAL_CONFIG
 /**
  * @brief Cấu hình chức năng các phím/pedal qua Serial
  *
@@ -139,39 +137,26 @@ void SerialConfiguration()
     strcpy(button_sendkeys[i], cmdvalue);
 
     // Debug
-    Serial.print("Key="); Serial.print(i);
-    Serial.print(", Value="); Serial.print(button_sendkeys[i]);
+    Serial.print("Button="); Serial.print(i);
+    Serial.print(", UserFormat="); Serial.print(button_sendkeys[i]);
 
 #pragma endregion ASSIGN_COMMAND
 }
 
-#endif
+#pragma endregion SERIAL_CONFIG
+
 
 /**
  * @brief Chế độ tự kiểm tra các chức năng hoạt động, dành cho DEV và QA
  * 
  */
 void Self_Test(){
-    static uint8_t i;
-    // Kiểm tra led với chu ki 0.5 giây và độ rộng xung tăng dần
-    for (i=0;i<5;i++) {
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(250 + i*50);
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(250 - i*50);    
-    }
-
     // Gửi các kí tự về 
     const char myCmd[] = {KEY_LEFT_SHIFT, 'c', 'H', 'a', ASCII_RELEASE_CODE, KEY_LEFT_SHIFT, 'o',' ', 'T', 0};
     bleKeyboardBuilder.SendKeys(myCmd);    
 
-    // Treo thiết bị với đèn báo
-    while (true){
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(80);
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(400);    
-    }
+    BleKeyboardBuilder::ConvertFormat("{PGDN}", button_sendkeys[0]);
+    Serial.print(button_sendkeys[0]);
 }
 
 /** Kết nối với thiết bị */
@@ -203,13 +188,31 @@ void setup()
     // Cấu hình cho chân pin led mặc định
     pinMode(LED_BUILTIN, OUTPUT);
 
-#ifdef SERIAL_CONFIG
     // Thiết lập kếnh cấu hình phím và debug
     Serial.begin(115200);
-#endif
 
     // Cấu hình cho nút bấm chế độ
     pinMode(BUTTON_BOOT, INPUT);    
+
+#if defined(DEBUG_SERIAL_SYNTAX)
+    //Ö  C  h  a  o     T  i  e   n    {  BS  } +  -   * /  TAB
+    //d6 43 68 61 6f 20 54 69 65 6e 20 7b b2 7d 2b 2d 2a 2f b3 0a
+    // . PD 
+
+    const char * myRequest = "{PGDN}Chao Tien {{}{BACKSPACE}{}}+-*/{TAB}";
+    char myCommand[100];
+    int res;
+    while (true) {    
+        res = BleKeyboardBuilder::ConvertFormat(myRequest, myCommand);
+
+        // Đèn báo hiệu sẵn sàng
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(500);
+        digitalWrite(LED_BUILTIN, HIGH);        
+        Serial.println(myCommand);        
+        delay(500);
+    }
+#else
 
     // Kết nối thiết bị liên tục cho tới khi thành công.
     TryToConnect();
@@ -232,30 +235,36 @@ void setup()
     pinMode(PIN_VAR2, INPUT);
 
     // Thiết lập chức năng mặc định cho 4 pedal
-    i = 0;
-    button_sendkeys[i][0] = KEY_PAGE_DOWN;
-    button_sendkeys[i][1] = 0;
-    i = 1;
-    button_sendkeys[i][0] = KEY_PAGE_UP;
-    button_sendkeys[i][1] = 0;
-    i = 2;
-    button_sendkeys[i][0] = KEY_RETURN;
-    button_sendkeys[i][1] = 0;
-    i = 3;
-    button_sendkeys[i][0] = KEY_LEFT_CTRL;
-    button_sendkeys[i][1] = KEY_F4;
-    button_sendkeys[i][2] = 0;
-
+    BleKeyboardBuilder::ConvertFormat("{PGDN}", button_sendkeys[0]);
+    BleKeyboardBuilder::ConvertFormat("{PGUP}", button_sendkeys[1]);
+    BleKeyboardBuilder::ConvertFormat("{ENTER}", button_sendkeys[2]);
+    BleKeyboardBuilder::ConvertFormat("{CTRL}{F4}{~CTRL}", button_sendkeys[3]);
 
     // Đánh dấu thời điểm bắt đầu chạy vòng lặp.
     TimeOfPreLoop = millis();
+
+    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL01) == PEDAL_ACTIVE_LOGIC)) {
+        Self_Test();  //blocking
+        // Treo thiết bị với đèn báo 2 lần chớp
+        while (true){
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(80);
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(100);
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(80);            
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(700);    
+        }
+    }
 
     // Đèn báo hiệu sẵn sàng
     digitalWrite(LED_BUILTIN, LOW);
     sleep(1);
     digitalWrite(LED_BUILTIN, HIGH);
 
-    //Self_Test();
+
+#endif    
 }
 
 
@@ -313,7 +322,7 @@ void loop()
         if (button_status[i] == KEYDOWN)
         {
             
-            bleKeyboardBuilder.SendKeys(button_sendkeys[0]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
+            bleKeyboardBuilder.SendKeys(button_sendkeys[i]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
             isDown = true;
         }
     }
@@ -329,9 +338,7 @@ void loop()
     {
         digitalWrite(LED_BUILTIN, HIGH);
     }
-    
-#ifdef SERIAL_CONFIG
+
     // Cấu hình chức năng các phím/pedal qua Serial
     SerialConfiguration();
-#endif    
 }
