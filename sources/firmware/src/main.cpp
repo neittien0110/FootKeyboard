@@ -303,11 +303,11 @@ void loop()
     unsigned long currentMillis = millis();
 
     if ((isDown && (currentMillis - TimeOfPreLoop < 180))     // Nếu có phím bấm thì phải 180ms mới chạy lại.
-        || (!isDown && (currentMillis - TimeOfPreLoop < 15))) // Nếu không bấm phím thì cứ 15ms lại kiểm tra lại
+        || (!isDown && (currentMillis - TimeOfPreLoop < PERIOD_OF_BUTTON_SCAN_LOOP))) // Nếu không bấm phím thì cứ 15ms lại kiểm tra lại
     {
         return;
     }
-
+    TimeOfPreLoop = currentMillis;// Đã vượt qua none-blocking delay
     //--------------PHASE 1: đọc trạng thái các nút bấm/pedal
     for (i = 0; i < MAX_BUTTONS; i++)
     {
