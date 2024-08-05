@@ -184,7 +184,7 @@ void SerialConfiguration()
 void Self_Test(){
     // Gửi các kí tự về 
     const char myCmd[] = {KEY_LEFT_SHIFT, 'c', 'H', 'a', ASCII_RELEASE_CODE, KEY_LEFT_SHIFT, 'o','.', ' '
-    , 'T','o',' ', 'l','a',' ', 'F', 'o', 'o', 't', ' ', 'K', 'e', 'y', 'b', 'o', 'a', 'r', 'd', 0};
+    , 'T','o',' ', 'l','a',' ', 'F', 'o', 'o', 't', ' ', 'K', 'e', 'y', 'b', 'o', 'a', 'r', 'd', '.',0};
     bleKeyboardBuilder.SendKeys(myCmd);    
 
     BleKeyboardBuilder::ConvertFormat("{ENTER}", button_sendkeys[0]);

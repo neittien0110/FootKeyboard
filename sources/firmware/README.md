@@ -165,6 +165,17 @@ Ví dụ:
 
 ## Kiêm tra Self Test
 
+Để vào chế độ Self Test, hãy thực hiện các bước đúng trình tự:
+
+1. Trên máy tính, mở phần mềm soạn thảo bất kì. Đặt con trò bàn phím vào ô soạn thảo.
+1. Tắt điện thiết bị **Foot Keyboard**.
+1. Bấm phím **pedal 01** và giữ nguyên trạng thái bấm. Lưu ý KHÔNG bấm nút BOOT.
+1. Bật công tắc để khởi động.
+1. Bấm nút BOOT. Giữ cho tới khi hết đèn led xanh nháy (báo hiệu đang thực hiện kết nối bluetooth)
+1. Quan sát nội dung hiển thị trên phần mềm soạn thảo, hiển thị giống với video dưới đây.
+
+<video controls src="assets/FKB_SelfTest.mp4" title="Self Test"></video>
+
 Khi mới khởi động, tiếp điện, bấm và giữ nút BOOT và phím PEDAL 01 trong khoảng 2 giây để đưa mạch về trạng thái kiểm tra hoạt động Self_Test. Xem trạng thái [đèn led báo](#đèn-báo).
 Đồng thời hãy mở giao tiếp Serial (tốc độ 115200, 8bit, 0stop) và xem các thông tin chi tiết trên đó.
 
