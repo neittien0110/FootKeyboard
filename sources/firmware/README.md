@@ -37,7 +37,7 @@ Thiết bị **Foot Keyboard** kết nối với host qua cổng usb trên board
     - tốc độ 115200.
 
     Bấm **OK** để bắt đầu
-4. Gõ lệnh cấu hình theo cú pháp: <span style="background:lightgreen"> **&lt;key&gt;=<USER_FORTMAT>** </span>. Trong đó:
+4. Gõ lệnh cấu hình theo cú pháp: <span style="background:lightgreen"> **&lt;key&gt;=<USER_FORTMAT>** </span> và kết thúc bằng \n. Trong đó:
    - &lt;key&gt; nhận các giá trị 01, 02, 03, 04. [Xem](#bảng-mã-phím-chức-năng)
    - <USER_FORTMAT> nhận các giá trị như trong bảng sau. [Xem](#bảng-mã-kí-tự-bàn-phím)
 
