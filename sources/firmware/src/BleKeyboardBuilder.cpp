@@ -20,18 +20,13 @@ void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
     i=0;
     while (true){
         ch = cmd[i];
+        
         if (ch == 0) { // Nếu là kí tự kết thúc chuỗi thì nhả tất cả các phím và dừng lại
             releaseAll();    
             return;
         } else if (ch < 0x80) { // Nếu là kí tự thường thì hiện thị
             press(ch);              
-            //bleSendKeys.release(ch);
-            //Không cần release, vì press kí tự sau sẽ trở thành release kí tự trước (ngoại trừ kí tự diều khiển)
-            // Tuy nhiên, hết sức lưu ý phản ứng của thư viện trong 2 trường hợp. ví dụ với cùng doạn mã sau
-            //     const char myCmd[] = {ASCII_CODE_PRESS_LEFT_SHIFT, 'c', 'H', 'a', 'o', ASCII_CODE_RELEASE_LEFT_SHIFT, 0};
-            //      SendKeys(myCmd);    
-            // - CÓ    bleSendKeys.release(ch);   THÌ KẾT QUẢ TRẢ VỀ LÀ    CHao
-            // - KHÔNG bleSendKeys.release(ch);   THÌ KẾT QUẢ TRẢ VỀ LÀ    CHAO
+            release(ch); //Phải có release. Nếu không có thì mặc dù biểu hiện không khác biệt, nhưng sẽ chỉ được 6 kí tự.
         } else { 
             // Nếu là kí tự đặc biệt chính là vai trò của mã ASCII_FORMAT đây
             if (ch != ASCII_RELEASE_CODE) {
