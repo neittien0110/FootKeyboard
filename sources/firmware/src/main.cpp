@@ -70,7 +70,7 @@ BleKeyboardBuilder bleKeyboardBuilder("Foot Keyboard", "Bluetooth Device Manufac
 
 #pragma region SERIAL_CONFIG
     /// Kích thước bộ đệm đọc lệnh từ Serial
-    #define SERIAL_BUFFER_SIZE 10
+    #define SERIAL_BUFFER_SIZE 255
     // Lệnh điều khiển nhận được từ Serial, có dạng userformat
     USER_FORMAT SerialCommand[SERIAL_BUFFER_SIZE];
     /// Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value.
@@ -85,6 +85,32 @@ BleKeyboardBuilder bleKeyboardBuilder("Foot Keyboard", "Bluetooth Device Manufac
     USER_FORMAT * cmdvalue = NULL;    
     /// Chuỗi các kí tự cần gửi, ứng với mỗi pedal. Cú pháp đơn kí tự, là bộ mã ASCII nhưng tận dụng mã ascii điều khiển để thành mã phím bấm điều khiển
     ASCII_FORMAT button_sendkeys[MAX_BUTTONS][SERIAL_BUFFER_SIZE];  
+
+bool DetermineKeyValue(char * Command, char ** key, char ** value) {
+    char ch;
+    uint8_t i;
+    *key = Command;
+    *value = NULL;
+    
+    /// Phân tích parsing
+    i = 0;
+    do {
+        ch = Command[i];
+        if (ch == '=') {
+            Command[i]=0; // Đánh dấu Zero kết thúc chuỗi
+            *value = & Command[i+1];
+            break;
+        }
+        i++;
+    } while (ch != 0);
+    
+    // Nếu không tìm thấy kí tự = không hợp lệ.
+    if (ch == 0) {
+        Serial.println("Error 01: delimiter = not found.");
+        return false;
+    };
+    return true;
+}
 
 /**
  * @brief Cấu hình chức năng các phím/pedal qua Serial
