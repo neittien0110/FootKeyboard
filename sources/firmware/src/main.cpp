@@ -20,14 +20,12 @@
  */
 #include <Arduino.h>
 #include "BleKeyboardBuilder.h"
-
+#include "settings.h"
 
 //#define DEBUG_SERIAL_SYNTAX      // Debug lỗi cú pháp của bộ phân tích USER_FORMAT
 
 #define LED_BUILTIN 8   //Led mặc định sẵn có trên ESP32-Super Mini
 #define BUTTON_BOOT 9   //Nút bấm mặc định sẵn có trên ESP32-Super Mini
-
-#define MAX_BUTTONS 4 // Số lượng pedal/nút bấm tối đa
 
 #define PIN_PEDAL01 1  // Kết nối tới pedal số 1
 #define PIN_PEDAL02 2  // Kết nối tới pedal số 2
@@ -69,8 +67,8 @@ unsigned long TimeOfPreLoop;
 BleKeyboardBuilder bleKeyboardBuilder("Foot Keyboard", "Bluetooth Device Manufacturer", 100);
 
 #pragma region SERIAL_CONFIG
-    /// Kích thước bộ đệm đọc lệnh từ Serial
-    #define SERIAL_BUFFER_SIZE 255
+    /// Kích thước bộ đệm đọc lệnh từ Serial (thực ra phải nhiều hơn MAX_KEY_CODE một vài kí tự xx=)
+    #define SERIAL_BUFFER_SIZE MAX_KEY_CODE + 3
     // Lệnh điều khiển nhận được từ Serial, có dạng userformat
     char SerialCommand[SERIAL_BUFFER_SIZE];
     /// Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value.
@@ -84,7 +82,7 @@ BleKeyboardBuilder bleKeyboardBuilder("Foot Keyboard", "Bluetooth Device Manufac
     // Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value
     USER_FORMAT * cmdvalue = NULL;    
     /// Chuỗi các kí tự cần gửi, ứng với mỗi pedal. Cú pháp đơn kí tự, là bộ mã ASCII nhưng tận dụng mã ascii điều khiển để thành mã phím bấm điều khiển
-    ASCII_FORMAT button_sendkeys[MAX_BUTTONS][SERIAL_BUFFER_SIZE];  
+    ASCII_FORMAT button_sendkeys[MAX_BUTTONS][MAX_KEY_CODE];  
 
 bool DetermineKeyValue(char * Command, char ** key, char ** value) {
     char ch;
@@ -171,6 +169,8 @@ void SerialConfiguration()
     Serial.println(button_sendkeys[i]);    
     // Debug
     Serial.print("Info: OK");
+    // Lưu cấu hình
+    SaveSettings(i , button_sendkeys[i]);
 #pragma endregion ASSIGN_COMMAND
 }
 
@@ -230,6 +230,27 @@ void setup()
 
     // Cấu hình cho nút bấm chế độ
     pinMode(BUTTON_BOOT, INPUT);    
+
+    // Ché độ khôi phục cấu hình xuất xưởng
+    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC)) {
+        // Khôi phục cấu hình xuất xưởng
+        ResetFactorySetting();
+        // Báo hiệu đã khôi phục xong
+        for (i=0; i <3; i++) {
+            digitalWrite(LED_BUILTIN, LOW);
+            delay(300);
+            digitalWrite(LED_BUILTIN, HIGH);
+            delay(1000);
+        }
+        // Tắt thiết bị
+        while (true)
+        {
+            delay(1000);
+        }
+    }
+
+    // Đọc cấu hình đã lưu
+    GetSettings();
 
 #if defined(DEBUG_SERIAL_SYNTAX)
 

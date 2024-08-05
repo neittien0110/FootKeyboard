@@ -179,6 +179,23 @@ Ví dụ:
 Khi mới khởi động, tiếp điện, bấm và giữ nút BOOT và phím PEDAL 01 trong khoảng 2 giây để đưa mạch về trạng thái kiểm tra hoạt động Self_Test. Xem trạng thái [đèn led báo](#đèn-báo).
 Đồng thời hãy mở giao tiếp Serial (tốc độ 115200, 8bit, 0stop) và xem các thông tin chi tiết trên đó.
 
+## Khôi phục cấu hình xuất xưởng
+
+Cấu hình xuát xưởng như sau:
+
+- Tên mạng Bluetooth BLE: Foot Keyboard
+- Chức năng Pedal 01: Page Down
+- Chức năng Pedal 02: Page Up
+- Chức năng Pedal 03: Enter
+- Chức năng Pedal 04: Ctrl+F4
+
+Để khôi phục cấu hình xuất xưởng, hãy
+
+1. Tắt điện thiết bị **Foot Keyboard**.
+1. Bấm phím **pedal 02** và giữ nguyên trạng thái bấm. Lưu ý KHÔNG bấm nút BOOT.
+1. Bật công tắc để khởi động.
+1. Bấm nút BOOT. Giữ cho tới khi đèn led xanh nháy 3 lần và tắt là xong.
+
 ## Xem thêm
 
 - [Hardware](../hardware/README.md)
