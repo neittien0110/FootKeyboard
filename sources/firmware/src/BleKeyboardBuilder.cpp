@@ -5,6 +5,7 @@
 BleKeyboardBuilder::BleKeyboardBuilder(std::string deviceName , std::string deviceManufacturer , uint8_t batteryLevel ) :
     BleKeyboard(deviceName , deviceManufacturer , batteryLevel )
 {
+    SetKeyPerMinute(1000); //nghỉ 60ms giữa 2 lần gửi mã phím, để tránh tràn bộ đệm bàn phím
 };
 
 /**
@@ -14,18 +15,21 @@ BleKeyboardBuilder::BleKeyboardBuilder(std::string deviceName , std::string devi
  *              const char myCmd[] = {KEY_LEFT_SHIFT, 'c', 'H', 'a', ASCII_RELEASE_CODE, KEY_LEFT_SHIFT, 'o',' ', 'T', 0}; SendKeys(myCmd); 
   */
 void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
-    static char ch;
+    static unsigned char ch;
     static uint8_t i;
 
     i=0;
     while (true){
         ch = cmd[i];
-        
+        // đợi giữa 2 kí tự liên tiếp, tránh bị tràn bộ đêm bàn phím
+        delay(keytokeytime);
+
         if (ch == 0) { // Nếu là kí tự kết thúc chuỗi thì nhả tất cả các phím và dừng lại
             releaseAll();    
             return;
         } else if (ch < 0x80) { // Nếu là kí tự thường thì hiện thị
-            press(ch);              
+            press(ch);      
+            delay(keytokeytime);    // Phải có khoảng trễ nhất định giữa press và release, nếu không sẽ bị mất phím        
             release(ch); //Phải có release. Nếu không có thì mặc dù biểu hiện không khác biệt, nhưng sẽ chỉ được 6 kí tự.
         } else { 
             // Nếu là kí tự đặc biệt chính là vai trò của mã ASCII_FORMAT đây
@@ -41,6 +45,23 @@ void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
     };
 }
 
+/**
+ * @brief Tốc độ gõ phím. Key per minute. 
+ * @detail Nếu số quá nhỏ, và lượng kí tự gửi đi khi bấm phím pedal quá lớn, trên 16 kí tự, có thể sẽ gây tràn bộ đệm bàn phím, gửi thiếu phím
+ * 
+ */
+void BleKeyboardBuilder::SetKeyPerMinute(uint16_t kpm)
+{
+    keytokeytime = 60000 / kpm;  // = 60s / key per minute;
+}
+
+/**
+  * @brief Tốc độ gõ phím. Key per minute. Mặc định là 200 kpm
+ */  
+uint16_t BleKeyboardBuilder::GetKeyPerMinute(uint16_t kpm)
+{
+    return 60000/keytokeytime;
+}
 
 typedef struct {
     uint16_t checksum;
