@@ -1,3 +1,5 @@
+#pragma once
+
 #include "BleKeyboard.h"
 
 #ifndef ESP32_BLE_SENDKEYS_H

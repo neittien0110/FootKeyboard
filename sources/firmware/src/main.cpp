@@ -21,6 +21,7 @@
 #include <Arduino.h>
 #include "BleKeyboardBuilder.h"
 #include "settings.h"
+#include "ledeffects.h"
 
 //#define DEBUG_SERIAL_SYNTAX      // Debug lỗi cú pháp của bộ phân tích USER_FORMAT
 
@@ -64,7 +65,7 @@ unsigned long TimeOfPreLoop;
 /**
  * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
  */
-BleKeyboardBuilder bleKeyboardBuilder("Foot Keyboard", "Bluetooth Device Manufacturer", 100);
+BleKeyboardBuilder bleKeyboardBuilder(DEFAUL_BLENAME, "NDT Device Manufacturer", 100);
 
 #pragma region SERIAL_CONFIG
     /// Kích thước bộ đệm đọc lệnh từ Serial (thực ra phải nhiều hơn MAX_KEY_CODE một vài kí tự xx=)
@@ -222,6 +223,7 @@ bool TryToConnect()
 void setup()
 {   
     uint8_t i;
+
     // Cấu hình cho chân pin led mặc định
     pinMode(LED_BUILTIN, OUTPUT);
 
@@ -231,26 +233,35 @@ void setup()
     // Cấu hình cho nút bấm chế độ
     pinMode(BUTTON_BOOT, INPUT);    
 
+
+    // Khởi tạo trạng thái cho các chân pedal có chức năng đóng/cắt:
+    // - nối vào các chân pin dạng INPUT với điện trở kéo lên bên trong
+    // - trạng thái ban đầu là nhả phím
+    for (i = 0; i < MAX_BUTTONS; i++)
+    {
+        pinMode(button_pins[i], INPUT_PULLUP);
+        button_status[i] = KEYFREE;
+    }
+
+    // 2 nối vào các chân pin dạng INPUT với điện trở kéo xuống ở ngoài board
+    pinMode(PIN_VAR1, INPUT);
+    pinMode(PIN_VAR2, INPUT);
+
+
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(1000);
+
     // Ché độ khôi phục cấu hình xuất xưởng
     if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC)) {
         // Khôi phục cấu hình xuất xưởng
+        delay(500);
         ResetFactorySetting();
         // Báo hiệu đã khôi phục xong
-        for (i=0; i <3; i++) {
-            digitalWrite(LED_BUILTIN, LOW);
-            delay(300);
-            digitalWrite(LED_BUILTIN, HIGH);
-            delay(1000);
-        }
-        // Tắt thiết bị
         while (true)
         {
-            delay(1000);
+            Flash(LED_BUILTIN,3,255);
         }
     }
-
-    // Đọc cấu hình đã lưu
-    GetSettings();
 
 #if defined(DEBUG_SERIAL_SYNTAX)
 
@@ -284,31 +295,21 @@ void setup()
     }
 #else
 
+    // Đọc cấu hình đã lưu
+    GetSettings(SerialCommand , (void *) button_sendkeys);
+
+    Flash(LED_BUILTIN, strlen(button_sendkeys[0]), 1);
+
+    // Đặt lại tên cho mạng BLE 
+    bleKeyboardBuilder.setName(SerialCommand);
+
+
     // Kết nối thiết bị liên tục cho tới khi thành công.
     TryToConnect();
 
    
     // Led sáng,  báo hiệu kết nối bluetooth thành công
     digitalWrite(LED_BUILTIN, LOW);
-
-    // Khởi tạo trạng thái cho các chân pedal có chức năng đóng/cắt:
-    // - nối vào các chân pin dạng INPUT với điện trở kéo lên bên trong
-    // - trạng thái ban đầu là nhả phím
-    for (i = 0; i < MAX_BUTTONS; i++)
-    {
-        pinMode(button_pins[i], INPUT_PULLUP);
-        button_status[i] = KEYFREE;
-    }
-
-    // 2 nối vào các chân pin dạng INPUT với điện trở kéo xuống ở ngoài board
-    pinMode(PIN_VAR1, INPUT);
-    pinMode(PIN_VAR2, INPUT);
-
-    // Thiết lập chức năng mặc định cho 4 pedal
-    BleKeyboardBuilder::ConvertFormat("{PGDN}", button_sendkeys[0]);
-    BleKeyboardBuilder::ConvertFormat("{PGUP}", button_sendkeys[1]);
-    BleKeyboardBuilder::ConvertFormat("{ENTER}", button_sendkeys[2]);
-    BleKeyboardBuilder::ConvertFormat("{CTRL}{F4}{~CTRL}", button_sendkeys[3]);
 
     // Đánh dấu thời điểm bắt đầu chạy vòng lặp.
     TimeOfPreLoop = millis();
@@ -317,14 +318,7 @@ void setup()
         Self_Test();  //blocking
         // Treo thiết bị với đèn báo 2 lần chớp
         while (true){
-            digitalWrite(LED_BUILTIN, LOW);
-            delay(80);
-            digitalWrite(LED_BUILTIN, HIGH);
-            delay(100);
-            digitalWrite(LED_BUILTIN, LOW);
-            delay(80);            
-            digitalWrite(LED_BUILTIN, HIGH);
-            delay(700);    
+            Flash(LED_BUILTIN,2,255);   
         }
     }
 
@@ -332,7 +326,6 @@ void setup()
     digitalWrite(LED_BUILTIN, LOW);
     sleep(1);
     digitalWrite(LED_BUILTIN, HIGH);
-
 
 #endif    
 }
