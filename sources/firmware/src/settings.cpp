@@ -20,11 +20,11 @@ void ResetFactorySetting()
 
   len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_00, codes) + 1;  // +1 để thêm kí tự 0
   EEPROM.writeBytes(0 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);     
-  len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_01, codes);
+  len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_01, codes) + 1;
   EEPROM.writeBytes(1 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);
-  len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_02, codes);
+  len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_02, codes) + 1;
   EEPROM.writeBytes(2 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);
-  len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_03, codes);
+  len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_03, codes) + 1;
   EEPROM.writeBytes(3 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);
   
   EEPROM.end();
