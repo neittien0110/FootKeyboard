@@ -17,49 +17,58 @@ void ResetFactorySetting()
   EEPROM.begin(EEPROM_SIZE);
   // Tính địa chỉ dịch chuyển và lưu 
   EEPROM.writeBytes(0                              , DEFAUL_BLENAME         , strlen(DEFAUL_BLENAME)+1);
+  
+  // Tốc độ gõ bàn phím 
+  EEPROM.writeUShort(MAX_BLUETOOTH_NAME + sizeof(uint16_t), DEFAULT_KEYS_PER_MINUTE);
 
   len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_00, codes) + 1;  // +1 để thêm kí tự 0
-  EEPROM.writeBytes(0 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);     
+  EEPROM.writeBytes(0 * MAX_KEY_CODE + MAX_SCALAR_AREA, codes, len);     
   len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_01, codes) + 1;
-  EEPROM.writeBytes(1 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);
+  EEPROM.writeBytes(1 * MAX_KEY_CODE + MAX_SCALAR_AREA, codes, len);
   len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_02, codes) + 1;
-  EEPROM.writeBytes(2 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);
+  EEPROM.writeBytes(2 * MAX_KEY_CODE + MAX_SCALAR_AREA, codes, len);
   len = BleKeyboardBuilder::ConvertFormat(DEFAUL_FEATURE_PEDAL_03, codes) + 1;
-  EEPROM.writeBytes(3 * MAX_KEY_CODE + MAX_BLE_NAME, codes, len);
+  EEPROM.writeBytes(3 * MAX_KEY_CODE + MAX_SCALAR_AREA, codes, len);
   
   EEPROM.end();
 }
 
-/**
- * @brief Đọc cấu hình chức năng đã lưu trữ trong Flash
- * @param blename [out] Tên mạng BLE Bluetooth
- * @param area    [out] Địa chỉ Mảng 2 chiều chứa các phím kí tự của các nút bấm Pedal
- */
-void GetSettings(char * blename, void * area)
+
+void GetSettings(char * blename, uint16_t * time_k2k, void * area)
 {  uint8_t i;
     
     EEPROM.begin(EEPROM_SIZE);
 
-    // Đọc tên mạng BLE
-    EEPROM.readString(0, blename, MAX_BLE_NAME);
-    
+    // Đọc tên mạng BLE. Dộ dài không quá 15 kí tự.
+    EEPROM.readString(0, blename, MAX_BLUETOOTH_NAME);
+
+    // Độ trễ giữa 2 lần gửi phím kí tự HID. Đơn vị ms. 2 byte.
+    *time_k2k = EEPROM.readUShort(MAX_BLUETOOTH_NAME + sizeof(uint16_t));
+
     // Đọc chức năng của các phím, trong toàn khối  button_sendkeys
-    EEPROM.readBytes(i * MAX_KEY_CODE + MAX_BLE_NAME, area , MAX_BUTTONS * MAX_KEY_CODE);
+    EEPROM.readBytes(i * MAX_KEY_CODE + MAX_SCALAR_AREA, area , MAX_BUTTONS * MAX_KEY_CODE);
 
     EEPROM.end();
 }
 
-/**
- * @brief Lưu cấu hình chức năng vào bộ nhớ Flash
- * @param key       Mã của phím chức năng. Ví dụ 0, 1, 2 ,3 tương ứng với các phím pedal 1, 2, 3, 4.
- * @param value     Chuỗi cấu hình
- */
-void SaveSettings(int key, char * value)
+void SaveKeyCodeSetting(int key, char * value)
 {
     EEPROM.begin(EEPROM_SIZE);
     // Tính địa chỉ dịch chuyển và lưu 
-    //EEPROM.writeBytes(key * MAX_KEY_CODE + MAX_BLE_NAME, value, MAX_KEY_CODE);
-    EEPROM.writeBytes(key * MAX_KEY_CODE + MAX_BLE_NAME, value, strlen(value)+1);//+1 để ghi thêm kí tự \0
+    //EEPROM.writeBytes(key * MAX_KEY_CODE + MAX_SCALAR_AREA, value, MAX_KEY_CODE);
+    EEPROM.writeBytes(key * MAX_KEY_CODE + MAX_SCALAR_AREA, value, strlen(value)+1);//+1 để ghi thêm kí tự \0
+    EEPROM.end();
+}
+
+void SaveScalarSettings(char * blename, uint8_t time_k2k)
+{
+    EEPROM.begin(EEPROM_SIZE);
+    // Đọc tên mạng BLE. Dộ dài không quá 15 kí tự.
+    EEPROM.writeString(0, blename);
+
+    // Tốc độ gõ bàn phím 
+    EEPROM.writeUShort(MAX_BLUETOOTH_NAME + sizeof(uint16_t), time_k2k);
+
     EEPROM.end();
 }
 

@@ -14,6 +14,7 @@
  *   - Ví dụ lệnh: PEDAL2={ENTER}
  *   - Ví dụ lệnh: PEDAL3={CTRL}{F4}{~CTRL}
  *   - Ví dụ lệnh: PEDAL3={ATL}{SHIFT}EC{~ATL}{~SHIFT}
+*   - Ví dụ lệnh: PEDAL3={SHIFT}{HOME}{~SHIFT}{CTRL}C{~CTRL}{SHIFT}{TAB}{TAB}{~SHIFT}{CTRL}V{~CTRL}
  * Thuật toán mã kĩ tự
  *           USER_FORMAT  -------------------------> ASCII_FORMAT -----------------------------------> KEYCODE
  *     (clean, clear for user)     (simple, fast for cpu, encryp press|release keycode)               (standard)
@@ -22,6 +23,7 @@
 #include "BleKeyboardBuilder.h"
 #include "settings.h"
 #include "ledeffects.h"
+#include "configuration.h"
 
 //#define DEBUG_SERIAL_SYNTAX      // Debug lỗi cú pháp của bộ phân tích USER_FORMAT
 
@@ -66,116 +68,6 @@ unsigned long TimeOfPreLoop;
  * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
  */
 BleKeyboardBuilder bleKeyboardBuilder(DEFAUL_BLENAME, "NDT Device Manufacturer", 100);
-
-#pragma region SERIAL_CONFIG
-    /// Kích thước bộ đệm đọc lệnh từ Serial (thực ra phải nhiều hơn MAX_KEY_CODE một vài kí tự xx=)
-    #define SERIAL_BUFFER_SIZE MAX_KEY_CODE + 3
-    // Lệnh điều khiển nhận được từ Serial, có dạng userformat
-    char SerialCommand[SERIAL_BUFFER_SIZE];
-    /// Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value.
-    /// Key ở điểm bắt đầu của commandline, nên luôn trùng với điểm đầu của lệnh
-    char * cmdkey = SerialCommand;
-    const char KEY01[] = "01";   // mã cấu hình tương ứng với chân PIN_PEDAL01
-    const char KEY02[] = "02";   // mã cấu hình tương ứng với chân PIN_PEDAL02
-    const char KEY03[] = "03";   // mã cấu hình tương ứng với chân PIN_PEDAL03
-    const char KEY04[] = "04";   // mã cấu hình tương ứng với chân PIN_PEDAL04
-
-    // Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value
-    USER_FORMAT * cmdvalue = NULL;    
-    /// Chuỗi các kí tự cần gửi, ứng với mỗi pedal. Cú pháp đơn kí tự, là bộ mã ASCII nhưng tận dụng mã ascii điều khiển để thành mã phím bấm điều khiển
-    ASCII_FORMAT button_sendkeys[MAX_BUTTONS][MAX_KEY_CODE];  
-
-bool DetermineKeyValue(char * Command, char ** key, char ** value) {
-    char ch;
-    uint8_t i;
-    *key = Command;
-    *value = NULL;
-    
-    /// Phân tích parsing
-    i = 0;
-    do {
-        ch = Command[i];
-        if (ch == '=') {
-            Command[i]=0; // Đánh dấu Zero kết thúc chuỗi
-            *value = & Command[i+1];
-            break;
-        }
-        i++;
-    } while (ch != 0);
-    
-    // Nếu không tìm thấy kí tự = không hợp lệ.
-    if (ch == 0) {
-        Serial.println("Error 01: delimiter = not found.");
-        return false;
-    };
-    return true;
-}
-
-/**
- * @brief Cấu hình chức năng các phím/pedal qua Serial
- *
- */
-void SerialConfiguration()
-{
-    uint8_t i, j;
-    int16_t res;
-    /// Nếu không có kết nối serial thì kết thúc luôn
-    if (Serial.available() <= 0)
-    {
-        return;
-    }
-    
-    /// Đọc lệnh từ Serial
-    int rlen = Serial.readBytesUntil('\n',SerialCommand, SERIAL_BUFFER_SIZE);
-    SerialCommand[rlen] = 0; // đánh dấu kết thúc chuỗi, nếu không sẽ dính với phần còn lại của lệnh trước.
-    
-    // Phân tích thành cặp key=value. Không phù hợp thì dừng luôn
-    if (!DetermineKeyValue(SerialCommand, & cmdkey, & cmdvalue)) return;
-
-#pragma region ASSIGN_COMMAND
-    /// Gán lệnh cho các nút bấm/pedal tương ứng
-    if (strcasecmp(cmdkey, KEY01) == 0) {
-        i = 0;
-    } else if (strcasecmp(cmdkey, KEY02) == 0) {
-        i = 1;
-    } else if (strcasecmp(cmdkey, KEY03) == 0) {
-        i = 2;
-    } else if (strcasecmp(cmdkey, KEY04) == 0) {
-        i = 3;
-    } else {
-        // mã phím bấm không phù hợp, kết thúc luôn
-        Serial.println("Error 02: button key is invalid.");
-        return;
-    }
-    // Debug
-    Serial.print("Info: Button="); Serial.print(i);
-    Serial.print(", UserFormat="); Serial.println(cmdvalue);
-
-    // Chuyển đổi từ USER_FORMAT về thành ASCII_FORMAT. Tận dụng lại mảng SerialComamnd để tiết kiệm bộ nhớ, vì cmdValue chắc chắn chứa các cụm từ mô tả dài hơn.
-    res = BleKeyboardBuilder::ConvertFormat(cmdvalue, SerialCommand);
-    if (res < 0) {
-        Serial.println("Error: UserFormat wrong at the character "); Serial.print(-res);
-        return;
-    } else {
-        Serial.print("cmd ");
-        Serial.print(res);
-        Serial.print(" chars: ");
-        Serial.println(SerialCommand);
-    }
-    // Áp dụng thành các phím kí tự của phím pedal
-    for (j = 0; j <= res ; j++) {   // <=res để copy cả kí tự 0
-        button_sendkeys[i][j] = SerialCommand[j];    
-    }
-    Serial.print("Infor: ap dung ");
-    Serial.println(button_sendkeys[i]);    
-    // Debug
-    Serial.print("Info: OK");
-    // Lưu cấu hình
-    SaveSettings(i , button_sendkeys[i]);
-#pragma endregion ASSIGN_COMMAND
-}
-
-#pragma endregion SERIAL_CONFIG
 
 
 /**
@@ -265,7 +157,8 @@ void setup()
 
 #if defined(DEBUG_SERIAL_SYNTAX)
 
-    strcpy(SerialCommand, "01=Xin {SHIFT}chao{~SHIFT} ban!");
+    //strcpy(SerialCommand, "01=Xin {SHIFT}chao{~SHIFT} ban!");
+    strcpy(SerialCommand, "01={SHIFT}{HOME}{~SHIFT}{CTRL}C{~CTRL}{SHIFT}{TAB}{TAB}{~SHIFT}{CTRL}V{~CTRL}");
     Serial.println(SerialCommand);
 
     char * key;
@@ -285,24 +178,31 @@ void setup()
     while (true) {    
         // Chuyển đổi chuỗi        
         res = BleKeyboardBuilder::ConvertFormat(myRequest, button_sendkeys[0]);
+        res = BleKeyboardBuilder::RevertFormat(button_sendkeys[0], myCommand);
 
         // Đèn báo hiệu sẵn sàng
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
         digitalWrite(LED_BUILTIN, HIGH);        
-        Serial.println(myRequest);        
+        Serial.println(myRequest);  
+        Serial.println("     ");  
+        Serial.println(myCommand);
+        Serial.println("     ");  
+        Serial.println("-----");                          
         delay(2000);
     }
 #else
-
-    // Đọc cấu hình đã lưu
-    GetSettings(SerialCommand , (void *) button_sendkeys);
+    // Khôi phục /đọc toàn bộ cấu hình đã lưu
+    uint16_t k2k;
+    GetSettings(SerialCommand, &k2k , (void *) button_sendkeys);
 
     Flash(LED_BUILTIN, strlen(button_sendkeys[0]), 1);
 
     // Đặt lại tên cho mạng BLE 
     bleKeyboardBuilder.setName(SerialCommand);
 
+    // Thiết lập tốc độ gõ 
+    bleKeyboardBuilder.SetKeyPerMinute(k2k);
 
     // Kết nối thiết bị liên tục cho tới khi thành công.
     TryToConnect();
@@ -415,5 +315,12 @@ void loop()
     }
 
     // Cấu hình chức năng các phím/pedal qua Serial
-    SerialConfiguration();
+    /// Nếu không có kết nối serial thì kết thúc luôn
+    if (Serial.available() > 0)
+    {   
+        /// Đọc lệnh từ Serial
+        int tmp = Serial.readBytesUntil('\n',SerialCommand, SERIAL_BUFFER_SIZE);
+        SerialCommand[tmp] = 0; // đánh dấu kết thúc chuỗi, nếu không sẽ dính với phần còn lại của lệnh trước.
+        SerialConfiguration(SerialCommand);
+    }
 }

@@ -36,14 +36,18 @@ typedef char ASCII_FORMAT;
 
 class BleKeyboardBuilder : public BleKeyboard {
 private:
-    // Độ trễ giữa 2 phím gửi đi liên tiếp. Đơn vị ms
-    uint16_t keytokeytime;
+    /// @brief Độ trễ giữa 2 trạng thái nhấn-nhả. Đơn vị ms. Mặc định 60ms.
+    uint16_t time_press_to_release;
+    /// @brief Độ trễ giữa 2 lần gửi phím liên tiếp. Đơn vị ms. Mặc định 100ms.
+    uint16_t time_key_to_key;
 public:
     BleKeyboardBuilder(std::string deviceName = "ESP32 Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
     void SendKeys(const ASCII_FORMAT * cmd);
     static int ConvertFormat(const char * USER_FORMAT, char * ASCII_FORMAT);
+    static int RevertFormat(const ASCII_FORMAT *  sascii, char * suser);
+    void SetPressTime( uint16_t ms);  
     void SetKeyPerMinute( uint16_t kpm);  
-    uint16_t GetKeyPerMinute( uint16_t kpm);
+    uint16_t GetKeyPerMinute();
 };
 
 #endif // ESP32_BLE_KEYBOARD_H

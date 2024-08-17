@@ -1,11 +1,13 @@
 #include <Arduino.h>
 #include "BleKeyboardBuilder.h"
 #include <cstdint>
+#include "settings.h"
 
 BleKeyboardBuilder::BleKeyboardBuilder(std::string deviceName , std::string deviceManufacturer , uint8_t batteryLevel ) :
     BleKeyboard(deviceName , deviceManufacturer , batteryLevel )
 {
-    SetKeyPerMinute(1000); //nghỉ 60ms giữa 2 lần gửi mã phím, để tránh tràn bộ đệm bàn phím
+    SetPressTime(60);
+    SetKeyPerMinute(DEFAULT_KEYS_PER_MINUTE);
 };
 
 /**
@@ -21,15 +23,15 @@ void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
     i=0;
     while (true){
         ch = cmd[i];
-        // đợi giữa 2 kí tự liên tiếp, tránh bị tràn bộ đêm bàn phím
-        delay(keytokeytime);
+        // đợi giữa 2 thao tác nhấn-nhả, tránh bị bị thiết bị host hiểu là sai lệch nhảy phím
+        delay(time_key_to_key);
 
         if (ch == 0) { // Nếu là kí tự kết thúc chuỗi thì nhả tất cả các phím và dừng lại
             releaseAll();    
             return;
         } else if (ch < 0x80) { // Nếu là kí tự thường thì hiện thị
             press(ch);      
-            delay(keytokeytime);    // Phải có khoảng trễ nhất định giữa press và release, nếu không sẽ bị mất phím        
+            delay(time_press_to_release);    // Phải có khoảng trễ nhất định giữa press và release, nếu không sẽ bị mất phím        
             release(ch); //Phải có release. Nếu không có thì mặc dù biểu hiện không khác biệt, nhưng sẽ chỉ được 6 kí tự.
         } else { 
             // Nếu là kí tự đặc biệt chính là vai trò của mã ASCII_FORMAT đây
@@ -47,20 +49,28 @@ void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
 
 /**
  * @brief Tốc độ gõ phím. Key per minute. 
- * @detail Nếu số quá nhỏ, và lượng kí tự gửi đi khi bấm phím pedal quá lớn, trên 16 kí tự, có thể sẽ gây tràn bộ đệm bàn phím, gửi thiếu phím
+ * @details Nếu số quá nhỏ, và lượng kí tự gửi đi khi bấm phím pedal quá lớn, trên 16 kí tự, có thể sẽ gây tràn bộ đệm bàn phím, gửi thiếu phím. Hoặc với các phím điều khiển, thiết bị host sẽ không kịp xử lý.
  * 
  */
 void BleKeyboardBuilder::SetKeyPerMinute(uint16_t kpm)
 {
-    keytokeytime = 60000 / kpm;  // = 60s / key per minute;
+    time_key_to_key = 60000 / kpm;  // key per minute;
 }
 
 /**
-  * @brief Tốc độ gõ phím. Key per minute. Mặc định là 200 kpm
- */  
-uint16_t BleKeyboardBuilder::GetKeyPerMinute(uint16_t kpm)
+ * @brief Thiết lập độ trễ giữa 2 trạng thái nhấn-nhả. Đơn vị ms. Mặc định 60ms.
+ */
+ void BleKeyboardBuilder::SetPressTime( uint16_t ms)
 {
-    return 60000/keytokeytime;
+    time_press_to_release = ms;
+}
+
+/**
+  * @brief Tốc độ gõ phím. Key per minute.
+ */  
+uint16_t BleKeyboardBuilder::GetKeyPerMinute()
+{
+    return 60000/time_key_to_key;
 }
 
 typedef struct {
@@ -129,8 +139,8 @@ CheckSUM2CODE checksum2codes[] = {
 /**
  * @brief Chuyển đổi định dạng dành cho USER thành định dạng RAW
  * 
- * @param USER_FORMAT *    request . Xem cú pháp https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.sendkeys
- * @param ASCII_FORMAT *   command
+ * @param USER_FORMAT *    request . Ví dụ {SHIFT}{HOME}{~SHIFT}{CTRL}C{~CTRL}{SHIFT}{TAB}{TAB}{~SHIFT}{CTRL}V{~CTRL}
+ * @param ASCII_FORMAT *   command 
  * @return int      Độ dài chuỗi kết quả command 
  */
 int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT *  command){
@@ -154,9 +164,9 @@ int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT 
             command[oi] = 0;    // Đánh dấu điểm cuối cùng
             break;
         } else if (ch == '{') {
-            // Đã tìm thấy điểm bắt đầu ngoặc
+            /// Đã tìm thấy điểm bắt đầu ngoặc
             start_brace_i = i;
-            // Tìm điểm cuối của ngoặc
+            /// Tìm điểm cuối của ngoặc
             i = i+1;
             // Tính checksum là tổng mã ascii của tất cả các kí tự x vị trí, áp dụng dể tìm chuỗi cho nhanh. bản chất là đánh indexing chuỗi
             checksum = 0; 
@@ -173,7 +183,7 @@ int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT 
 
             // Lúc này command[start_brace_i:i] chứa chuỗi như {ENTER},  {PGUP}
             // Xác định mã của các phím đặc biệt và gán vào command.      
-            for (j=0;j < 52; j++) {
+            for (j=0;j < sizeof(checksum2codes); j++) {
                 if (checksum2codes[j].checksum == checksum) {
                     // Đã tìm thấy mã của điều khiển
                     if (j < 0x6) {      // là dạng release của 3 phím Ctrl, Alt, Shift
@@ -202,6 +212,61 @@ int BleKeyboardBuilder::ConvertFormat(const USER_FORMAT * request, ASCII_FORMAT 
         i++; // CHuyển sang kí tự tiếp theo
     }
     
+    return oi;
+}
+
+/**
+ * @brief Chuyển đổi định dạng dành cho RAW thành định dạng USER
+ * 
+ * @param ASCII_FORMAT [in]   sascii. 
+ * @param char*  [out]  suser . Ví dụ {637}{440}{~637}{477}C{~477}{637}{284}{284}{~637}{477}V{~477}
+ * @return int     Dộ dài, số kí tự của chuỗi [out] (Không phải số phím bấm HID)
+ */
+int BleKeyboardBuilder::RevertFormat(const ASCII_FORMAT *  sascii, char * suser){
+    uint8_t i, oi,j;
+    int16_t start_brace_i, checksum;
+    char ch;
+   
+    i = 0;
+    oi = 0;
+    do {
+        ch = sascii[i];
+        if (ch ==0 ) {
+            break;
+        } else if (ch < 0x80) {
+            suser[oi] = ch;
+            oi++;
+        } else {    // Bảng đặc biệt: luôn có dạng 3 kí tự {...} hoặc 4 kí tự {~...}
+            suser[oi] = '{'; 
+            oi ++;
+            if (ch == ASCII_RELEASE_CODE) {
+                // ghi nhận kí tự điều khiển release ~.
+                suser[oi] = '~';  
+                oi ++; 
+                // phân tích luôn kí tự tiếp theo
+                i++;
+                ch = sascii[i]; //
+            }
+            for (j=6;j < sizeof(checksum2codes); j++) {
+                if (checksum2codes[j].code == ch) {
+                    // Đã tìm thấy mã của điều khiển
+                    itoa(checksum2codes[j].checksum, & suser[oi],10);
+                    // Xác dịnh điểm cuối, bởi vì mã checksum luôn là 3, hoặc 4 chữ số thôi.
+                    if (suser[oi+3]==0) {
+                        oi = oi + 3;    
+                    } else  oi = oi + 4;
+                    break;
+                }
+            }
+            suser[oi] = '}'; 
+            oi ++;            
+        }
+        i++;    // Chuyển sang kí tự ascii tiếp theo
+    } while (ch != 0);
+    
+    /// Thêm kí tự \0 đánh dấu kết thúc chuỗi
+    suser[oi] = 0; 
+    oi ++; 
     return oi;
 }
 
