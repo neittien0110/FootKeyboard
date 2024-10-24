@@ -37,9 +37,28 @@ Thiết bị **Foot Keyboard** kết nối với host qua cổng usb trên board
     - tốc độ 115200.
 
     Bấm **OK** để bắt đầu
-4. Gõ lệnh cấu hình theo cú pháp: <span style="background:lightgreen"> **&lt;key&gt;=<USER_FORTMAT>** </span> và kết thúc bằng \n. Trong đó:
-   - &lt;key&gt; nhận các giá trị 01, 02, 03, 04. [Xem](#bảng-mã-phím-chức-năng)
-   - <USER_FORTMAT> nhận các giá trị như trong bảng sau. [Xem](#bảng-mã-kí-tự-bàn-phím)
+4. Gõ lệnh cấu hình theo cú pháp: <span style="background:lightgreen"> **&lt;key&gt;=<USER_FORTMAT>** </span> và kết thúc bằng \n. Xem vVí dụ [các lệnh cấu hình](#các-lệnh-cấu-hình)
+
+## Đèn báo
+
+Trên thiết bị **Foot Keyboard**  có 3 đèn led <span style="color:blue">xanh (blue) dữ liệu</span>, <span style="color:red">đỏ (red) cấp nguồn</span>, và <span style="color:green">xanh lá (green) sạc pin</span> với ý nghĩa như sau:
+
+- <span style="color:blue">Led xanh</span> nháy nhanh liên tục: đang dò tìm và cố gắng thiết lập kết nối bluetooth với thiết bị host.
+- <span style="color:blue">Led xanh</span> tắt: không có phím nào được bấm
+- <span style="color:blue">Led xanh</span> lóe sáng 0.2 giây rồi tắt ngay: có phím/pedal được bấm (không phải lượng phím được gửi tới host).
+- <span style="color:blue">Led xanh</span> 2 lần chớp rồi tắt, lặp đi lặp lại trong chu kì 1 giây: đã thực hiện xong chế độ Tự kiểm tra Self Test và ngừng hoạt động. Tắt thiết bị và khởi động lại để về chế độ bình thường.
+- <span style="color:red">Led đỏ</span> sáng: nguồn điện đã được cấp cho bo mạch chính.
+- <span style="color:red">Led đỏ</span> tắt: bo mạch chính không được cấp điện, không hoạt động. Hhãy kiểm tra lại pin bằng cách sạc lại, hoặc tiếp điện cho thiết bị qua cổng USB.
+- <span style="color:green">Led xanh lá</span> nhấp nháy: pin đang được sạc.
+- <span style="color:green">Led xanh lá</span> sáng liên tục: pin đã được sạc đầy.
+- <span style="color:green">Led xanh lá</span> tắt: pin không được sạc.
+
+## Bảng mã cấu hình
+
+### Các lệnh cấu hình
+
+- &lt;key&gt; nhận các giá trị 01, 02, 03, 04. [Xem](#bảng-mã-phím-chức-năng)
+- <USER_FORTMAT> nhận các giá trị như trong bảng sau. [Xem](#bảng-mã-kí-tự-bàn-phím)
 
 Ví dụ:
 
@@ -67,21 +86,31 @@ hoặc
    03={CTRL}{ALT}{DELETE}{~DELETE}{~CTRL}{~ALT}
 ```
 
-## Đèn báo
+- Chuỗi cấu hình xem toàn bộ thông tin cấu hình
 
-Trên thiết bị **Foot Keyboard**  có 3 đèn led <span style="color:blue">xanh (blue) dữ liệu</span>, <span style="color:red">đỏ (red) cấp nguồn</span>, và <span style="color:green">xanh lá (green) sạc pin</span> với ý nghĩa như sau:
+```plain
+   A?=
 
-- <span style="color:blue">Led xanh</span> nháy nhanh liên tục: đang dò tìm và cố gắng thiết lập kết nối bluetooth với thiết bị host.
-- <span style="color:blue">Led xanh</span> tắt: không có phím nào được bấm
-- <span style="color:blue">Led xanh</span> lóe sáng 0.2 giây rồi tắt ngay: có phím/pedal được bấm (không phải lượng phím được gửi tới host).
-- <span style="color:blue">Led xanh</span> 2 lần chớp rồi tắt, lặp đi lặp lại trong chu kì 1 giây: đã thực hiện xong chế độ Tự kiểm tra Self Test và ngừng hoạt động. Tắt thiết bị và khởi động lại để về chế độ bình thường.
-- <span style="color:red">Led đỏ</span> sáng: nguồn điện đã được cấp cho bo mạch chính.
-- <span style="color:red">Led đỏ</span> tắt: bo mạch chính không được cấp điện, không hoạt động. Hhãy kiểm tra lại pin bằng cách sạc lại, hoặc tiếp điện cho thiết bị qua cổng USB.
-- <span style="color:green">Led xanh lá</span> nhấp nháy: pin đang được sạc.
-- <span style="color:green">Led xanh lá</span> sáng liên tục: pin đã được sạc đầy.
-- <span style="color:green">Led xanh lá</span> tắt: pin không được sạc.
+   Info: toc do go phim 150 key/phut.
+   Info: Button 0: {459}
+      length=6
+   Info: Button 1: {493}
+      length=6
+   Info: Button 2: {634}
+      length=6
+   Info: Button 3: {477}{139}{~477}
+      length=17
+   Info: OK
+```
 
-## Bảng mã cấu hình
+- Chuỗi cấu hình thiết lập thời gian giữa 2 phím được gửi liên tiếp
+
+```plain
+   TK=145
+
+   Info: thiet lap toc do go phim 145 key/phut.
+```
+
 
 ### Bảng mã phím chức năng
 
