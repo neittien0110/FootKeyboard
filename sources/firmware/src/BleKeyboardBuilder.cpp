@@ -3,6 +3,14 @@
 #include <cstdint>
 #include "settings.h"
 
+void BleKeyboardBuilder::print(const char * text){
+    Serial.print(text);
+}
+
+void BleKeyboardBuilder::println(const char * text){
+    Serial.println(text);
+}
+
 BleKeyboardBuilder::BleKeyboardBuilder(std::string deviceName , std::string deviceManufacturer , uint8_t batteryLevel ) :
     BleKeyboard(deviceName , deviceManufacturer , batteryLevel )
 {
@@ -24,14 +32,14 @@ void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
     while (true){
         ch = cmd[i];
         // đợi giữa 2 thao tác nhấn-nhả, tránh bị bị thiết bị host hiểu là sai lệch nhảy phím
-        delay(time_key_to_key);
+        delayMicroseconds(time_key_to_key*1000);
 
         if (ch == 0) { // Nếu là kí tự kết thúc chuỗi thì nhả tất cả các phím và dừng lại
             releaseAll();    
             return;
         } else if (ch < 0x80) { // Nếu là kí tự thường thì hiện thị
             press(ch);      
-            delay(time_press_to_release);    // Phải có khoảng trễ nhất định giữa press và release, nếu không sẽ bị mất phím        
+            delayMicroseconds(time_press_to_release*1000);    // Phải có khoảng trễ nhất định giữa press và release, nếu không sẽ bị mất phím        
             release(ch); //Phải có release. Nếu không có thì mặc dù biểu hiện không khác biệt, nhưng sẽ chỉ được 6 kí tự.
         } else { 
             // Nếu là kí tự đặc biệt chính là vai trò của mã ASCII_FORMAT đây

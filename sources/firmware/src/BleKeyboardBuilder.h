@@ -41,6 +41,8 @@ private:
     /// @brief Độ trễ giữa 2 lần gửi phím liên tiếp. Đơn vị ms. Mặc định 100ms.
     uint16_t time_key_to_key;
 public:
+    static void print(const char * text);
+    static void println(const char * text);
     BleKeyboardBuilder(std::string deviceName = "ESP32 Keyboard", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
     void SendKeys(const ASCII_FORMAT * cmd);
     static int ConvertFormat(const char * USER_FORMAT, char * ASCII_FORMAT);

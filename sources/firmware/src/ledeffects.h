@@ -5,10 +5,11 @@ void Flash(uint8_t pin, uint8_t hitcombo, uint8_t loop) {
     for (i = 0; i < loop; i++) {
        for (j = 0; j < hitcombo; j++) {     
             digitalWrite(pin, LOW);
-            delay(80);
+            delayMicroseconds(80* 1000);
             digitalWrite(pin, HIGH);
-            delay(250);            
+            delayMicroseconds(250 * 1000);            
        }
-       delay(1000);
+       delayMicroseconds(80*1000);
+       delayMicroseconds(1000*1000);
     }
 }
