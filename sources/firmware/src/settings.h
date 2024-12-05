@@ -3,6 +3,13 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+/// Nhiều thông tin debug
+#define DEBUG_VERBOSE              
+
+/// Debug lỗi cú pháp của bộ phân tích USER_FORMAT
+//#define DEBUG_SERIAL_SYNTAX      
+
+
 /// Số lượng kí tự bàn phím tối đa của một phím pedal
 #define MAX_KEY_CODE 100
 
@@ -10,12 +17,13 @@
 #define MAX_BUTTONS 4 
 
 /// Tên mặc định của mạng BLE Bluetooth
-#define DEFAUL_BLENAME  "Foot Keyboard"
+#define DEFAULT_BLENAME  "Foot Keyboard"
 /// Default setting của các phím pedal
-#define DEFAUL_FEATURE_PEDAL_00 "{PGDN}"
-#define DEFAUL_FEATURE_PEDAL_01 "{PGUP}"
-#define DEFAUL_FEATURE_PEDAL_02 "{ENTER}"
-#define DEFAUL_FEATURE_PEDAL_03 "{CTRL}{F4}{~CTRL}"
+#define DEFAULT_FEATURE_PEDAL_00 "{PGDN}"
+#define DEFAULT_FEATURE_PEDAL_01 "{PGUP}"
+#define DEFAULT_FEATURE_PEDAL_02 "{ENTER}"
+//#define DEFAULT_FEATURE_PEDAL_03 "{CTRL}{F4}{~CTRL}"
+#define DEFAULT_FEATURE_PEDAL_03 "Hello"
 
 
 
@@ -46,7 +54,7 @@ void GetSettings(char * blename, uint16_t * time_k2k, void * area);
  * @param blename [in] Tên mạng BLE Bluetooth
  * @param time_k2k [in] Tốc độ gõ bàn phím
  */
-void SaveScalarSettings(char * blename, uint8_t time_k2k);
+void SaveScalarSettings(char * blename, uint16_t time_k2k);
 
 /**
  * @brief Lưu cấu hình chức năng vào bộ nhớ Flash

@@ -25,17 +25,31 @@
 #include "ledeffects.h"
 #include "configuration.h"
 
-//#define DEBUG_SERIAL_SYNTAX      // Debug lỗi cú pháp của bộ phân tích USER_FORMAT
+#if defined(ADRUINO_BOARD_ESP32_C3_SUPERMINI)
+    /// Áp dụng khi MCU thuộc họ ESP32-C3
+    #define LED_BUILTIN 8   //Led mặc định sẵn có trên ESP32-Super Mini. Tích cực mức thấp.
+    #define BUTTON_BOOT 9   //Nút bấm mặc định sẵn có trên ESP32-Super Mini
+    #define PIN_PEDAL00 1  // Kết nối tới pedal số 0
+    #define PIN_PEDAL01 2  // Kết nối tới pedal số 1
+    #define PIN_PEDAL02 10 // Kết nối tới pedal số 2
+    #define PIN_PEDAL03 7  // Kết nối tới pedal số 3
+    #define PIN_VAR1 0     // Kết nối tới biến trở / cảm biến lực FSR
+    #define PIN_VAR2 3     // Kết nối tới biến trở / cảm biến lực FSR    
+#elif defined(ADRUINO_BOARD_ESP32_DEV_KIT)
+    /// Áp dụng khi MCU thuộc họ ESP32
+    #define LED_BUILTIN 02 // Led được thiết kế trên board
+    #define BUTTON_BOOT 00   //Nút bấm 2 chức năng, thiết lập trạng thái nạp code và tính năng tùy ý
+    #define PIN_PEDAL00 15 // Kết nối tới pedal số 15
+    #define PIN_PEDAL01 16 // Kết nối tới pedal số 16
+    #define PIN_PEDAL02 17 // Kết nối tới pedal số 17
+    #define PIN_PEDAL03 18 // Kết nối tới pedal số 18
+    #define PIN_VAR1 04    // Kết nối tới biến trở 
+    #define PIN_VAR2 04    // Chưa sử dụng
+#elif defined(ARDUINO_ARCH_AVR)
+    /// Áp dụng khi CPU thuộc họ AVR như Arduino Uno, Mega, Lilypad
+#endif   
 
-#define LED_BUILTIN 8   //Led mặc định sẵn có trên ESP32-Super Mini
-#define BUTTON_BOOT 9   //Nút bấm mặc định sẵn có trên ESP32-Super Mini
 
-#define PIN_PEDAL01 1  // Kết nối tới pedal số 1
-#define PIN_PEDAL02 2  // Kết nối tới pedal số 2
-#define PIN_PEDAL03 10 // Kết nối tới pedal số 3
-#define PIN_PEDAL04 7  // Kết nối tới pedal số 4
-#define PIN_VAR1 0     // Kết nối tới biến trở / cảm biến lực FSR
-#define PIN_VAR2 3     // Kết nối tới biến trở / cảm biến lực FSR
 
 /**
  * @brief Trạng thái tích cực theo mức. Ví dụ 0, 1.
@@ -56,7 +70,7 @@ enum KEYSTATUS
 };
 
 
-const uint button_pins[MAX_BUTTONS] = {PIN_PEDAL01, PIN_PEDAL02, PIN_PEDAL03, PIN_PEDAL04};
+const uint button_pins[MAX_BUTTONS] = {PIN_PEDAL00, PIN_PEDAL01, PIN_PEDAL02, PIN_PEDAL03};
 uint button_prevalues[MAX_BUTTONS];   /// Giá trị trước đó, ở dạng digital 0/1 của nút bấm
 uint button_curvalues[MAX_BUTTONS];   /// Giá trị hiện thời, ở dạng digital 0/1 của nút bấm
 KEYSTATUS button_status[MAX_BUTTONS]; /// Trạng thái hiện thời của các nút bấm
@@ -67,7 +81,7 @@ unsigned long TimeOfPreLoop;
 /**
  * @brief  Handler điều khiển giao tiếp HID Keyboard BLE
  */
-BleKeyboardBuilder bleKeyboardBuilder(DEFAUL_BLENAME, "NDT Device Manufacturer", 100);
+BleKeyboardBuilder bleKeyboardBuilder(DEFAULT_BLENAME, "NDT Device Manufacturer", 100);
 
 
 /**
@@ -92,23 +106,40 @@ void Self_Test(){
 /** Kết nối với thiết bị */
 bool TryToConnect()
 {
+#ifdef DEBUG_VERBOSE
+    Serial.println("Khoi tao BLE HID...");
+#endif 
+
     uint8_t led_blink = HIGH;
 
     // Nếu đã kết nối rồi thì hủy kết nối
     if (bleKeyboardBuilder.isConnected())
     {
+#ifdef DEBUG_VERBOSE
+        Serial.println("  - Huy ket noi da co");
+#endif         
         bleKeyboardBuilder.end();
     }
 
     // Bắt đầu phiên
+#ifdef DEBUG_VERBOSE
+    Serial.println("  - Tao ket noi BLE");
+#endif         
     bleKeyboardBuilder.begin();
+
     // Led nháy báo hiệu đang tìm thiết bị kết nôi
+#ifdef DEBUG_VERBOSE
+    Serial.println("  - Doi thiet bi...");
+#endif         
     while (!bleKeyboardBuilder.isConnected())
     {
         led_blink = !led_blink;
         digitalWrite(LED_BUILTIN, led_blink);
-        delay(100);
+        delayMicroseconds(100*1000);
     }
+#ifdef DEBUG_VERBOSE
+    Serial.println("  - Da ket noi.");
+#endif       
     return true;
 }
 
@@ -121,6 +152,11 @@ void setup()
 
     // Thiết lập kếnh cấu hình phím và debug
     Serial.begin(115200);
+
+    // Thông báo
+#ifdef DEBUG_VERBOSE
+    Serial.println("Cau hinh nut bam...");
+#endif
 
     // Cấu hình cho nút bấm chế độ
     pinMode(BUTTON_BOOT, INPUT);    
@@ -139,15 +175,23 @@ void setup()
     pinMode(PIN_VAR1, INPUT);
     pinMode(PIN_VAR2, INPUT);
 
-
+    // Tắt đèn báo
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000);
+
+    //TODO : Cần yêu cầu xuất xưởng ở lần chạy code đầu ti
 
     // Ché độ khôi phục cấu hình xuất xưởng
-    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC)) {
+    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC) ) {
+#ifdef DEBUG_VERBOSE
+        Serial.println("Khoi phuc cau hinh xuat xuong...");
+#endif        
         // Khôi phục cấu hình xuất xưởng
-        delay(500);
+        delayMicroseconds(500*1000);
         ResetFactorySetting();
+
+#ifdef DEBUG_VERBOSE
+        Serial.println("Khoi phuc xong... Can reset lai board");
+#endif                
         // Báo hiệu đã khôi phục xong
         while (true)
         {
@@ -192,12 +236,23 @@ void setup()
         delay(2000);
     }
 #else
-    // Khôi phục /đọc toàn bộ cấu hình đã lưu
+    /// Thời gian trễ giữa 2 lần gửi phím 
     uint16_t k2k;
+#ifdef DEBUG_VERBOSE
+    Serial.println("Doc cau hinh phim cua cac nut bam");
+#endif    
     GetSettings(SerialCommand, &k2k , (void *) button_sendkeys);
+#ifdef DEBUG_VERBOSE
+    Serial.print("So luong keycode cua moi phim: ");
+    Serial.print(strlen(button_sendkeys[0]));  Serial.print(",");
+    Serial.print(strlen(button_sendkeys[1]));  Serial.print(",");
+    Serial.print(strlen(button_sendkeys[2]));  Serial.print(",");
+    Serial.println(strlen(button_sendkeys[3]));
+#endif     
 
-    Flash(LED_BUILTIN, strlen(button_sendkeys[0]), 1);
-
+#ifdef DEBUG_VERBOSE
+    Serial.println("Khoi tao tham so cho BLE Bluetooth");
+#endif 
     // Đặt lại tên cho mạng BLE 
     bleKeyboardBuilder.setName(SerialCommand);
 
@@ -206,22 +261,28 @@ void setup()
 
     // Kết nối thiết bị liên tục cho tới khi thành công.
     TryToConnect();
-
    
     // Led sáng,  báo hiệu kết nối bluetooth thành công
     digitalWrite(LED_BUILTIN, LOW);
 
     // Đánh dấu thời điểm bắt đầu chạy vòng lặp.
+#ifdef DEBUG_VERBOSE
+    Serial.println("Kiem tra chuc nang Selt_Test co duoc kich hoat khong?");
+#endif    
     TimeOfPreLoop = millis();
-
     if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL01) == PEDAL_ACTIVE_LOGIC)) {
+#ifdef DEBUG_VERBOSE
+        Serial.println("  - Co. Thuc hien Self_Test");
+#endif    
         Self_Test();  //blocking
         // Treo thiết bị với đèn báo 2 lần chớp
+#ifdef DEBUG_VERBOSE
+        Serial.println("  - Da xong Self_Test");
+#endif    
         while (true){
             Flash(LED_BUILTIN,2,255);   
         }
     }
-
     // Đèn báo hiệu sẵn sàng
     digitalWrite(LED_BUILTIN, LOW);
     sleep(1);

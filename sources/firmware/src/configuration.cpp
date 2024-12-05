@@ -6,10 +6,10 @@
 
 const char TIME_KEY_TO_KEY[] = "TK";   // ma cấu hình tương ứng với khoảng thời gian trễ giữa các phím kí tự gửi đi
 const char PRINT_ALL[] = "A?";   // mã xem toàn bộ thông tin cáu hình
-const char KEY00[] = "00";   // mã cấu hình tương ứng với chân PIN_PEDAL01
-const char KEY01[] = "01";   // mã cấu hình tương ứng với chân PIN_PEDAL02
-const char KEY02[] = "02";   // mã cấu hình tương ứng với chân PIN_PEDAL03
-const char KEY03[] = "03";   // mã cấu hình tương ứng với chân PIN_PEDAL04
+const char KEY00[] = "00";   // mã cấu hình tương ứng với chân PIN_PEDAL00
+const char KEY01[] = "01";   // mã cấu hình tương ứng với chân PIN_PEDAL01
+const char KEY02[] = "02";   // mã cấu hình tương ứng với chân PIN_PEDAL02
+const char KEY03[] = "03";   // mã cấu hình tương ứng với chân PIN_PEDAL03
 
 
 // Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value
@@ -93,7 +93,7 @@ void SerialConfiguration(char * SerialCommand)
             Serial.println("Error: toc do do phim phai la so nguyen duong.");    
         }
         bleKeyboardBuilder.SetKeyPerMinute(res);
-        SaveScalarSettings(DEFAUL_BLENAME ,res);
+        SaveScalarSettings(DEFAULT_BLENAME ,res);
         Serial.print("Info: thiet lap toc do go phim ");
         Serial.print(res);
         Serial.println(" key/phut.");
