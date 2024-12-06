@@ -13,3 +13,9 @@ Bộ bàn phím gồm 3 thành phần
 ## Hướng dẫn sử dụng
 
   [Xem tại đây](sources/firmware/README.md)
+
+## Giới thiệu
+ 
+ - Nguyễn Đức Tiến, <https://neittien0110.github.com>
+ - Nguyễn Đức Hà, ha.nguyenduc2002@gmail.com, <https://github.com/hadimsctn>\
+   ![image](https://github.com/user-attachments/assets/63f16206-f1ec-4589-85ef-45aa9c0c6eeb)
