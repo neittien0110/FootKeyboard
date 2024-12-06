@@ -70,7 +70,7 @@ void SerialConfiguration(char * SerialCommand)
     char * cmdkey = SerialCommand;
 
     uint8_t i, j;
-    int16_t res;
+    uint16_t res;
     unsigned char ch;
    
     // Phân tích thành cặp key=value. Không phù hợp thì dừng luôn

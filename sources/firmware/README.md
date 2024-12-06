@@ -10,7 +10,7 @@ Thiết bị giao tiếp máy tính dưới dạng bàn phím bluetooth, không 
    Lúc này, đèn led trên thiết bị sẽ nháy liên tục và rất nhanh, báo hiệu quá trình kết nối đang được diễn ra.
 2. Trên máy tính, điện thoại di động, thực hiện quét các thiết bị Bluetooth xung quanh, để tìm ra thiết bị có tên **Foot Keyboard**.\
    ![bleconnect scan](./assets/bleconnect_scan.png)\
-    Click đúp vào tên **Foot Keyboard** để thực hiện việc kết nối (pair). 
+    Click đúp vào tên **Foot Keyboard** để thực hiện việc kết nối (pair).
 3. Đợi một vài giây cho tới khi đèn led trên thiết bị tắt, báo hiệu quá trình kết nối đã thành công.
 
 Bạn đã bắt đầu sử dụng được thiết bị.
@@ -28,7 +28,7 @@ Các phím nút vặn, kết nối qua 2 socket dạng XH2.54 làm đầu chờ 
 
 ## Hướng dẫn thay đổi chức năng phím/pedal
 
-Thiết bị **Foot Keyboard** kết nối với host qua cổng usb trên board chính. Thông qua dây cable này, thiết bị host có thể cấu hình lại vai trò của các phím pedal chức năng. Ví dụ khi bấm phím pedal 01 thì tương đương với bấm phím _Page Down_ trên bàn phím, hoặc tương đương với đoạn văn bản *Hello*, hoặc _Ctrl+Atl+Del_, hoặc bất kì..
+Thiết bị **Foot Keyboard** kết nối với host qua cổng usb trên board chính. Thông qua dây cable này, thiết bị host có thể cấu hình lại vai trò của các phím pedal chức năng. Ví dụ khi bấm phím pedal 01 thì tương đương với bấm phím _Page Down_ trên bàn phím, hoặc tương đương với đoạn văn bản _Hello_, hoặc _Ctrl+Atl+Del_, hoặc bất kì..
 
 1. Kết nối **Foot Keyboard** với máy tính bằng dây usb.
 2. Trên máy tính, mở phần mềm giao tiếp Termianl/Serial/COM bất kì. Ví dụ Putty.
@@ -37,7 +37,7 @@ Thiết bị **Foot Keyboard** kết nối với host qua cổng usb trên board
     - tốc độ 115200.
 
     Bấm **OK** để bắt đầu
-4. Gõ lệnh cấu hình theo cú pháp: <span style="background:lightgreen"> **&lt;key&gt;=<USER_FORTMAT>** </span> và kết thúc bằng \n. Xem vVí dụ [các lệnh cấu hình](#các-lệnh-cấu-hình)
+4. Gõ lệnh cấu hình theo cú pháp: <span style="background:lightgreen">**&lt;key&gt;=<USER_FORTMAT>** </span> và kết thúc bằng \n. Xem vVí dụ [các lệnh cấu hình](#các-lệnh-cấu-hình)
 
 ## Đèn báo
 
@@ -111,7 +111,6 @@ hoặc
    Info: thiet lap toc do go phim 145 key/phut.
 ```
 
-
 ### Bảng mã phím chức năng
 
 Áp dụng ở phần **&lt;key&gt;** trong cú pháp cấp hình <span style="background:lightgreen"> **&lt;key&gt;**=<USER_FORTMAT> </span>. [Xem](#hướng-dẫn-thay-đổi-chức-năng-phímpedal)
@@ -138,59 +137,59 @@ Ví dụ:
 ```
 
 |STT| Mã USER_FORMAT| Tương đương với phím trên bàn phím |
-|--|--|--|
-|1	| {~CTRL}   |nhả CTRL trái|
-|2	| {~ALT}    |nhả ALT trái|
-|3	| {~SHIFT}  |nhả SHIFT trái|
-|4	| {~RCTRL}  |nhả CTRL trái|
-|5	| {~RALT}   |nhả ALT trái|
-|6	| {~RSHIFT} |nhả SHIF tráiT |
-|7	| {CTRL}    |bấm CTRL trái|
-|8	| {ALT}     |bấm ALT trái|
-|9	| {SHIFT}   |bấm SHIFT trái |
-|10	| {RCTRL}   |bấm CTRL phải|
-|11	| {RALT}    |bấm ALT phải|
-|12	| {RSHIFT}  |bấm SHIFT phải|
-|13	| {BACKSPACE}    |BACKSPACE|
-|14	| {BREAK}    |	 |
-|15	| {CAPSLOCK}    |Capslock|
-|16	| {DELETE}    |DELETE|
-|17	| {DOWN}    |DOWN/Mũi tên xuống dưới|
-|18	| {END}    |END|
-|19	| {ENTER}    |Enter|
-|20	| {ESC}    |ESC|
-|21	| {HOME}    |HOME|
-|22	| {INSERT}    |INSERT|
-|23	| {LEFT}    |LEFT/Mũi tên sang trái|
-|24	| {NUMLOCK}    |NumLock|
-|25	| {PGDN}    |Page DOWN|
-|26	| {PGUP}    |Page UP|
-|27	| {PRTSC}    |Printscreen|
-|28	| {RIGHT}    |RIGHT/Mũi tên sang phải|
-|29	| {SCROLLLOCK}    |Scroll|
-|30	| {TAB}   |TAB|
-|31	| {UP}    |UP/Mũi tên lên trên|
-|32	| {F1}    |F1|
-|33	| {F2}    |F2|
-|34	| {F3}    |F3|
-35	| {F4}    |F4|
-|36	| {F5}    |F5|
-|37	| {F6}    |F6|
-|38	| {F7}    |F7|
-|39	| {F8}    |F8|
-|40	| {F9}    |F9|
-|41	| {F10}    |F10|
-|42	| {F11}    |F11|
-|43	| {F12}    |F12|
-|44	| {F13}    |F13|
-|45	| {F14}    |F14|
-|46	| {F15}    |F15|
-|47	| {F16}    |F16|
-|48	| {BS}    |BACKSPACE |
-|49	| {DEL}    |DELETE |
-|50	| {INS}    |INSERT |
-|51	| {{}      |{|
-|52	| {}}      |}|
+|--:|--|--|
+|1| {~CTRL}   |nhả CTRL trái|
+|2| {~ALT}    |nhả ALT trái|
+|3| {~SHIFT}  |nhả SHIFT trái|
+|4| {~RCTRL}  |nhả CTRL trái|
+|5| {~RALT}   |nhả ALT trái|
+|6| {~RSHIFT} |nhả SHIF tráiT |
+|7| {CTRL}    |bấm CTRL trái|
+|8| {ALT}     |bấm ALT trái|
+|9| {SHIFT}   |bấm SHIFT trái |
+|10| {RCTRL}   |bấm CTRL phải|
+|11| {RALT}    |bấm ALT phải|
+|12| {RSHIFT}  |bấm SHIFT phải|
+|13| {BACKSPACE}    |BACKSPACE|
+|14| {BREAK}    | |
+|15| {CAPSLOCK}    |Capslock|
+|16| {DELETE}    |DELETE|
+|17| {DOWN}    |DOWN/Mũi tên xuống dưới|
+|18| {END}    |END|
+|19| {ENTER}    |Enter|
+|20| {ESC}    |ESC|
+|21| {HOME}    |HOME|
+|22| {INSERT}    |INSERT|
+|23| {LEFT}    |LEFT/Mũi tên sang trái|
+|24| {NUMLOCK}    |NumLock|
+|25| {PGDN}    |Page DOWN|
+|26| {PGUP}    |Page UP|
+|27| {PRTSC}    |Printscreen|
+|28| {RIGHT}    |RIGHT/Mũi tên sang phải|
+|29| {SCROLLLOCK}    |Scroll|
+|30| {TAB}   |TAB|
+|31| {UP}    |UP/Mũi tên lên trên|
+|32| {F1}    |F1|
+|33| {F2}    |F2|
+|34| {F3}    |F3|
+|35| {F4}    |F4|
+|36| {F5}    |F5|
+|37| {F6}    |F6|
+|38| {F7}    |F7|
+|39| {F8}    |F8|
+|40| {F9}    |F9|
+|41| {F10}    |F10|
+|42| {F11}    |F11|
+|43| {F12}    |F12|
+|44| {F13}    |F13|
+|45| {F14}    |F14|
+|46| {F15}    |F15|
+|47| {F16}    |F16|
+|48| {BS}    |BACKSPACE |
+|49| {DEL}    |DELETE |
+|50| {INS}    |INSERT |
+|51| {{}      |{|
+|52| {}}      |}|
 
 ## Kiêm tra Self Test
 
