@@ -223,7 +223,8 @@ Cấu hình xuát xưởng như sau:
 1. Tắt điện thiết bị **Foot Keyboard**.
 1. Bấm phím **pedal 02** và giữ nguyên trạng thái bấm. Lưu ý KHÔNG bấm nút BOOT.
 1. Bật công tắc để khởi động.
-1. Bấm nút BOOT. Giữ cho tới khi đèn led xanh nháy 3 lần và tắt là xong.
+1. Bấm nút BOOT. Giữ cho tới khi đèn led xanh nháy 3 lần và tắt, lặp đi đi lặp
+   Đã xong.
 
 ## Xem thêm
 
