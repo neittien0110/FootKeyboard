@@ -32,6 +32,16 @@ Xem thêm
 
   ![image](https://github.com/user-attachments/assets/02e50c46-4ce2-4b63-9bee-3237e54aa579)
 
+- Version 1.0
+- Version 2.0:
+  - Fix-bug: chưa đấu chéo hai chân TXD RXD của CH340 với ESP32
+  - Fix-bug: Thiếu nút RST và BOOT
+- Version 3.0
+  - Upgraded: thay module sạc 5V mini bằng module TP4056H  mini tự vẽ lại để vị trí các lỗ pin phù hợp
+- Version 3.4:
+  - Upgraded: bổ sung ổn áp 3v3 với AMS1117.
+  - Hazard: Nếu không có AMS117 thì WROOM-32, hoặc CH340 ko chạy được do quá áp (>3.6v). Nhưng nếu sử dụng AMS1117 thì khi chạy ESP32 bật tắt led là okay, nhưng chỉ cần bật Bluetooth BLE là ESP báo Brownout detector was triggered và ngay lập tức khởi động lại ESP32.
+
 ### Schematic
 
 ![Schematic](https://github.com/user-attachments/assets/e3d46ba8-7496-476d-a637-2145a8161c2d)\
