@@ -9,6 +9,40 @@
 /// Debug lỗi cú pháp của bộ phân tích USER_FORMAT
 //#define DEBUG_SERIAL_SYNTAX      
 
+#if defined(ADRUINO_BOARD_ESP32_C3_SUPERMINI)
+    /// Áp dụng khi MCU thuộc họ ESP32-C3
+    #define LED_BUILTIN 8  //Led mặc định sẵn có trên ESP32-Super Mini. Tích cực mức thấp.
+    #define LED_ON  HIGH   // Trạng thái bật đèn led, tích cực mức thấp
+    #define LED_OFF LOW    // Trạng thái tắt đèn led
+    #define BUTTON_BOOT 9  //Nút bấm mặc định sẵn có trên ESP32-Super Mini
+    #define PIN_PEDAL00 1  // Kết nối tới pedal số 0
+    #define PIN_PEDAL01 2  // Kết nối tới pedal số 1
+    #define PIN_PEDAL02 10 // Kết nối tới pedal số 2
+    #define PIN_PEDAL03 7  // Kết nối tới pedal số 3
+    #define PIN_VAR1 0     // Kết nối tới biến trở / cảm biến lực FSR
+    #define PIN_VAR2 3     // Kết nối tới biến trở / cảm biến lực FSR    
+#elif defined(ADRUINO_BOARD_ESP32_DEV_KIT)
+    /// Áp dụng khi MCU thuộc họ ESP32
+    //#define LED_BUILTIN 2 // Led được thiết kế trên board. Không cần định nghĩa lại
+    #define LED_ON  HIGH   // Trạng thái bật đèn led, tích cực mức cao
+    #define LED_OFF LOW    // Trạng thái tắt đèn led
+    #define BUTTON_BOOT 00 //Nút bấm 2 chức năng, thiết lập trạng thái nạp code và tính năng tùy ý
+    #define PIN_PEDAL00 15 // Kết nối tới pedal số 15
+    #define PIN_PEDAL01 16 // Kết nối tới pedal số 16
+    #define PIN_PEDAL02 17 // Kết nối tới pedal số 17
+    #define PIN_PEDAL03 18 // Kết nối tới pedal số 18
+    #define PIN_VAR1 04    // Kết nối tới biến trở 
+    #define PIN_VAR2 04    // Chưa sử dụng
+#elif defined(ARDUINO_ARCH_AVR)
+    /// Áp dụng khi CPU thuộc họ AVR như Arduino Uno, Mega, Lilypad
+#endif   
+
+/**
+ * @brief Trạng thái tích cực theo mức. Ví dụ 0, 1.
+ * @example Ví dụ  digitalRead(3) == PEDAL_ACTIVE_LOGIC
+ */
+#define PEDAL_ACTIVE_LOGIC 0
+#define PEDAL_DEACTIVE_LOGIC 1
 
 /// Số lượng kí tự bàn phím tối đa của một phím pedal
 #define MAX_KEY_CODE 100
@@ -54,7 +88,7 @@ void GetSettings(char * blename, uint16_t * time_k2k, void * area);
  * @param blename [in] Tên mạng BLE Bluetooth
  * @param time_k2k [in] Tốc độ gõ bàn phím
  */
-void SaveScalarSettings(char * blename, uint16_t time_k2k);
+void SaveScalarSettings(const char * blename, uint16_t time_k2k);
 
 /**
  * @brief Lưu cấu hình chức năng vào bộ nhớ Flash

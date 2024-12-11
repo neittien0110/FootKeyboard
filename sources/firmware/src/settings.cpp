@@ -114,7 +114,7 @@ void SaveKeyCodeSetting(int key, char * value)
  * @param time_k2k Thời gian trễ giữa 2 lần gửi phím 
  * @see  Xem Cấu trúc dữ liệu vùng EEPROM
  */
-void SaveScalarSettings(char * blename, uint16_t time_k2k)
+void SaveScalarSettings(const char * blename, uint16_t time_k2k)
 {
     EEPROM.begin(EEPROM_SIZE);
     // Đọc tên mạng BLE. Dộ dài không quá 15 kí tự. Điểm bắt đầu 0.
