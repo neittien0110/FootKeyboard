@@ -73,11 +73,11 @@ void Self_Test(){
 /** Kết nối với thiết bị */
 bool TryToConnect()
 {
+    // Led tắt, dành năng lượng cho kết nối BLE
+    digitalWrite(LED_BUILTIN, LED_OFF);
 #ifdef DEBUG_VERBOSE
     Serial.println("Khoi tao BLE HID...");
 #endif 
-
-    uint8_t led_blink = HIGH;
 
     // Nếu đã kết nối rồi thì hủy kết nối
     if (bleKeyboardBuilder.isConnected())
@@ -87,6 +87,9 @@ bool TryToConnect()
 #endif         
         bleKeyboardBuilder.end();
     }
+
+    // Đợi một chút xem sao
+    delayMicroseconds(500*1000);
 
     // Bắt đầu phiên
 #ifdef DEBUG_VERBOSE
@@ -98,6 +101,7 @@ bool TryToConnect()
 #ifdef DEBUG_VERBOSE
     Serial.println("  - Doi thiet bi...");
 #endif         
+    uint8_t led_blink = LED_OFF;
     while (!bleKeyboardBuilder.isConnected())
     {
         led_blink = !led_blink;
@@ -143,12 +147,12 @@ void setup()
     pinMode(PIN_VAR2, INPUT);
 
     // Tắt đèn báo
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LED_OFF);
 
-    //TODO : Cần yêu cầu xuất xưởng ở lần chạy code đầu ti
+    //TODO : Cần yêu cầu xuất xưởng ở lần chạy code đầu tiên
 
     // Ché độ khôi phục cấu hình xuất xưởng
-    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC) ) {
+    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC)) {
 #ifdef DEBUG_VERBOSE
         Serial.println("Khoi phuc cau hinh xuat xuong...");
 #endif        
@@ -192,9 +196,9 @@ void setup()
         res = BleKeyboardBuilder::RevertFormat(button_sendkeys[0], myCommand);
 
         // Đèn báo hiệu sẵn sàng
-        digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(LED_BUILTIN, LED_ON);
         delay(500);
-        digitalWrite(LED_BUILTIN, HIGH);        
+        digitalWrite(LED_BUILTIN, LED_OFF);        
         Serial.println(myRequest);  
         Serial.println("     ");  
         Serial.println(myCommand);
@@ -208,6 +212,7 @@ void setup()
 #ifdef DEBUG_VERBOSE
     Serial.println("Doc cau hinh phim cua cac nut bam");
 #endif    
+    // Lấy tham số cấu hình. Note, dùng tạm mảng SerialCommand để chứa tên mạng bluetooth
     GetSettings(SerialCommand, &k2k , (void *) button_sendkeys);
 #ifdef DEBUG_VERBOSE
     Serial.print("So luong keycode cua moi phim: ");
@@ -217,20 +222,31 @@ void setup()
     Serial.println(strlen(button_sendkeys[3]));
 #endif     
 
-#ifdef DEBUG_VERBOSE
-    Serial.println("Khoi tao tham so cho BLE Bluetooth");
-#endif 
     // Đặt lại tên cho mạng BLE 
+#ifdef DEBUG_VERBOSE
+    Serial.print("Ten BLE: ");
+    Serial.println(SerialCommand);
+#endif 
     bleKeyboardBuilder.setName(SerialCommand);
 
     // Thiết lập tốc độ gõ 
+#ifdef DEBUG_VERBOSE
+    Serial.print("Toc do phim : ");
+    Serial.println(k2k);
+#endif     
     bleKeyboardBuilder.SetKeyPerMinute(k2k);
 
+    // Chớp 2 lần báo hiệu kết nối bluetooth
+    Flash(LED_BUILTIN,2,1);
+
+#ifdef DEBUG_VERBOSE
+    Serial.println("......");
+#endif 
     // Kết nối thiết bị liên tục cho tới khi thành công.
     TryToConnect();
    
     // Led sáng,  báo hiệu kết nối bluetooth thành công
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, LED_ON);
 
     // Đánh dấu thời điểm bắt đầu chạy vòng lặp.
 #ifdef DEBUG_VERBOSE
@@ -251,9 +267,9 @@ void setup()
         }
     }
     // Đèn báo hiệu sẵn sàng
-    digitalWrite(LED_BUILTIN, LOW);
-    sleep(1);
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LED_ON);
+    delayMicroseconds(1000*1000);
+    digitalWrite(LED_BUILTIN, LED_OFF);
 
 #endif    
 }
@@ -317,29 +333,39 @@ void loop()
         button_status[i] = DetectKeyWordflow(button_prevalues[i], button_curvalues[i]);
     }
 
-    //--------------PHASE 2: hành động
+    //--------------PHASE 2: tiền xử lý
+    // Cờ phát hiện có nút nào đó đã được bấm
     isDown = false;
     // đọc trạng thái của cả 4 nút
     for (i = 0; i < MAX_BUTTONS; i++)
     {    
         if (button_status[i] == KEYDOWN)
         {
-            
-            bleKeyboardBuilder.SendKeys(button_sendkeys[i]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
             isDown = true;
+            break;
+        }
+    }    
+
+    ///--------------PHASE 3: hành động
+    if (isDown) {
+        /// Bật đèn led báo hiệu quá trình gửi phím bắt đầu
+        digitalWrite(LED_BUILTIN, LED_ON);
+
+        /// Xuất phím gửi về máy tính
+        for (i = 0; i < MAX_BUTTONS; i++)
+        {    
+            if (button_status[i] == KEYDOWN)
+            {                
+                bleKeyboardBuilder.SendKeys(button_sendkeys[i]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
+            }
         }
     }
 
-    //--------------PHASE 3: hậu xử lý nếu cần
-    // Nếu có phím được bấm thì mới cần delay để tránh xử lý 2 phím liên tiếp, còn không thì bỏ qua
-    // Có cần thiết không nhỉ?
+    ///--------------PHASE 4: hậu xử lý nếu cần
     if (isDown)
     {
-        digitalWrite(LED_BUILTIN, LOW);
-    }
-    else
-    {
-        digitalWrite(LED_BUILTIN, HIGH);
+        /// Tắt đèn led, báo hiêu quá trinh gửi phím kết thúc
+        digitalWrite(LED_BUILTIN, LED_OFF);
     }
 
     // Cấu hình chức năng các phím/pedal qua Serial
