@@ -1,3 +1,13 @@
+/**
+ * @file configuration.h
+ * @author Nguyen Duc Tien
+ * @brief Configure and customize features via serial, or oled screen
+ * @version 0.1
+ * @date 2024-12-12
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #include <Arduino.h>
 #include <settings.h>
 

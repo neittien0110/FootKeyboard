@@ -23,6 +23,7 @@
 #include "BleKeyboardBuilder.h"
 #include "settings.h"
 #include "ledeffects.h"
+#include "ssd1306.h"                // Điều khiển màn hình oled
 #include "configuration.h"
 
 /**
@@ -146,18 +147,20 @@ void setup()
     pinMode(PIN_VAR1, INPUT);
     pinMode(PIN_VAR2, INPUT);
 
-    // Tắt đèn báo
+    // Bật đèn báo vào chế độ kiểm tra cấu hình xuất xưởng, và tranh thủ thì hiển thị màn hình oled để không phải delay nhiều lần
     digitalWrite(LED_BUILTIN, LED_OFF);
 
-    //TODO : Cần yêu cầu xuất xưởng ở lần chạy code đầu tiên
+    /// Khởi tạo màn hinh oled và dành thời gian chờ người dùng bấm nút cấu hình (nếu có)
+    setup_oled();
 
-    // Ché độ khôi phục cấu hình xuất xưởng
+    // Tắt đèn báo chế độ kiểm tra xuất xưởng
+    digitalWrite(LED_BUILTIN, LED_OFF);
+
+    // Ché độ khôi phục cấu hình xuất xưởng nếu có
     if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC)) {
 #ifdef DEBUG_VERBOSE
         Serial.println("Khoi phuc cau hinh xuat xuong...");
 #endif        
-        // Khôi phục cấu hình xuất xưởng
-        delayMicroseconds(500*1000);
         ResetFactorySetting();
 
 #ifdef DEBUG_VERBOSE
@@ -266,11 +269,15 @@ void setup()
             Flash(LED_BUILTIN,2,255);   
         }
     }
+    
     // Đèn báo hiệu sẵn sàng
     digitalWrite(LED_BUILTIN, LED_ON);
     delayMicroseconds(1000*1000);
     digitalWrite(LED_BUILTIN, LED_OFF);
 
+#ifdef DEBUG_VERBOSE
+    Serial.println("Khoi tao xong.");
+#endif  
 #endif    
 }
 
@@ -348,8 +355,13 @@ void loop()
 
     ///--------------PHASE 3: hành động
     if (isDown) {
+#ifdef DEBUG_VERBOSE
+        Serial.print("Co phim bam: ");
+#endif         
         /// Bật đèn led báo hiệu quá trình gửi phím bắt đầu
         digitalWrite(LED_BUILTIN, LED_ON);
+        /// Hiện lên màn hình oled
+        show_pedal(i);
 
         /// Xuất phím gửi về máy tính
         for (i = 0; i < MAX_BUTTONS; i++)
@@ -359,6 +371,9 @@ void loop()
                 bleKeyboardBuilder.SendKeys(button_sendkeys[i]);       //bleKeyboardBuilder.write(KEY_PAGE_DOWN);
             }
         }
+#ifdef DEBUG_VERBOSE
+        Serial.println(" gui xong.");
+#endif         
     }
 
     ///--------------PHASE 4: hậu xử lý nếu cần

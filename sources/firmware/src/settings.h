@@ -21,6 +21,10 @@
     #define PIN_PEDAL03 7  // Kết nối tới pedal số 3
     #define PIN_VAR1 0     // Kết nối tới biến trở / cảm biến lực FSR
     #define PIN_VAR2 3     // Kết nối tới biến trở / cảm biến lực FSR    
+
+    #define PIN_SDA     04 // Kết nối màn hình oled. Chân SDA mặc định
+    #define PIN_SCL     05 // Kết nối màn hình oled. Chân SCL mặc định
+
 #elif defined(ADRUINO_BOARD_ESP32_DEV_KIT)
     /// Áp dụng khi MCU thuộc họ ESP32
     //#define LED_BUILTIN 2 // Led được thiết kế trên board. Không cần định nghĩa lại
@@ -33,6 +37,10 @@
     #define PIN_PEDAL03 18 // Kết nối tới pedal số 18
     #define PIN_VAR1 04    // Kết nối tới biến trở 
     #define PIN_VAR2 04    // Chưa sử dụng
+
+    #define PIN_SDA     21 // Kết nối màn hình oled
+    #define PIN_SCL     22 // Kết nối màn hình oled
+
 #elif defined(ARDUINO_ARCH_AVR)
     /// Áp dụng khi CPU thuộc họ AVR như Arduino Uno, Mega, Lilypad
 #endif   
