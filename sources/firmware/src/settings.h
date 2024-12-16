@@ -63,9 +63,10 @@
 /// Default setting của các phím pedal
 #define DEFAULT_FEATURE_PEDAL_00 "{PGDN}"
 #define DEFAULT_FEATURE_PEDAL_01 "{PGUP}"
-#define DEFAULT_FEATURE_PEDAL_02 "{ENTER}"
+#define DEFAULT_FEATURE_PEDAL_02 "cos{ENTER}"
+#define DEFAULT_FEATURE_PEDAL_03 "vawsng{ENTER}"
 //#define DEFAULT_FEATURE_PEDAL_03 "{CTRL}{F4}{~CTRL}"
-#define DEFAULT_FEATURE_PEDAL_03 "Hello"
+//#define DEFAULT_FEATURE_PEDAL_03 "Hello"
 
 
 
@@ -76,7 +77,7 @@
 #define MAX_BLUETOOTH_NAME 16
 
 // Tốc độ gõ kí tự mặc định trong 1 phút
-#define DEFAULT_KEYS_PER_MINUTE 150
+#define DEFAULT_KEYS_PER_MINUTE 250
 
 // define the number of bytes you want to access. 32 kí tự chứa thông tin phần BLE Name
 #define EEPROM_SIZE (MAX_KEY_CODE * MAX_BUTTONS + MAX_SCALAR_AREA)

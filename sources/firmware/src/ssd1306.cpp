@@ -74,7 +74,7 @@ void setup_oled() {
   display.clearDisplay();
 
   // Xoay 180*
-  display.setRotation(2);
+  //display.setRotation(0);
 
   // Show the display buffer on the screen. You MUST call display() after
   // drawing commands to make them visible on screen!
@@ -83,7 +83,7 @@ void setup_oled() {
 
   main_screen();    // Draw 'stylized' characters
 
-  delayMicroseconds(500*1000);
+  delayMicroseconds(200*1000);
 }
 
 

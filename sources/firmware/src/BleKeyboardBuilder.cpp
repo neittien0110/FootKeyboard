@@ -32,7 +32,7 @@ void BleKeyboardBuilder::SendKeys(const ASCII_FORMAT * cmd) {
     while (true){
         ch = cmd[i];
         // đợi giữa 2 thao tác nhấn-nhả, tránh bị bị thiết bị host hiểu là sai lệch nhảy phím
-        delayMicroseconds(time_key_to_key*1000);
+        delayMicroseconds(time_key_to_key*100);
 
         if (ch == 0) { // Nếu là kí tự kết thúc chuỗi thì nhả tất cả các phím và dừng lại
             releaseAll();    

@@ -157,7 +157,7 @@ void setup()
     digitalWrite(LED_BUILTIN, LED_OFF);
 
     // Ché độ khôi phục cấu hình xuất xưởng nếu có
-    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL02) == PEDAL_ACTIVE_LOGIC)) {
+    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL01) == PEDAL_ACTIVE_LOGIC)) {
 #ifdef DEBUG_VERBOSE
         Serial.println("Khoi phuc cau hinh xuat xuong...");
 #endif        
@@ -256,7 +256,7 @@ void setup()
     Serial.println("Kiem tra chuc nang Selt_Test co duoc kich hoat khong?");
 #endif    
     TimeOfPreLoop = millis();
-    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL01) == PEDAL_ACTIVE_LOGIC)) {
+    if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL00) == PEDAL_ACTIVE_LOGIC)) {
 #ifdef DEBUG_VERBOSE
         Serial.println("  - Co. Thuc hien Self_Test");
 #endif    
