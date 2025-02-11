@@ -1,0 +1,114 @@
+/* Container chính */
+.devicesetting {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  width: 80%;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+/* Tiêu đề chính */
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Thông tin thiết bị */
+.device-info {
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.info-item input {
+  flex: 1;
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Cấu hình nút bấm */
+.button-config {
+  margin-bottom: 20px;
+}
+
+.button-row {
+  /* display: flex; */
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.button-row select,
+.button-row button {
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.button-row button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.button-row button:hover {
+  background-color: #0056b3;
+}
+
+/* Advanced settings */
+.advanced {
+  margin-bottom: 20px;
+}
+
+.advanced textarea {
+  width: 95%;
+  height: 60px;
+  margin-top: 5px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none;
+}
+
+/* Nút hành động */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.actions button {
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.review-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.check-btn {
+  background-color: #ffc107;
+  color: black;
+}
+
+.review-btn:hover {
+  background-color: #218838;
+}
+
+.check-btn:hover {
+  background-color: #e0a800;
+}
