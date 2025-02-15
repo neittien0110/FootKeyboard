@@ -30,7 +30,7 @@ Xem thêm
 
 ## Thiết kế 2: PCB riêng và ESP32-WROOM-32
 
-  ![image](https://github.com/user-attachments/assets/02e50c46-4ce2-4b63-9bee-3237e54aa579)
+  ![image](https://github.com/user-attachments/assets/02218e85-df2a-460f-8be7-4fe8c98f1e93)
 
 - Version 1.0
 - Version 2.0:
@@ -41,11 +41,25 @@ Xem thêm
 - Version 3.4:
   - Upgraded: bổ sung ổn áp 3v3 với AMS1117.
   - Hazard: Nếu không có AMS117 thì WROOM-32, hoặc CH340 ko chạy được do quá áp (>3.6v). Nhưng nếu sử dụng AMS1117 thì khi chạy ESP32 bật tắt led là okay, nhưng chỉ cần bật Bluetooth BLE là ESP báo Brownout detector was triggered và ngay lập tức khởi động lại ESP32.
+- Version 3.5: 
+  - công tắc gạt có 2 mod độc lập   nguồn trực tiếp+sạc/nguồn pin
+- Version 3.6: 
+  - bổ sung các khe cắm JP0,JP1,JP2,JP3 để kết nối với các jack nối pedal rời gắn trên hộp, hoặc không sử dụng DC5521
+- Version 3.7:
+  - Loại đế pin 14250 có khoảng cách giữa 2pin là 29mm
+- Version 3.8:
+  - Thay đổi thiết kế nguồn cấp: mạch sạc --> ams1117 --> (pin1 dipswitch pin3) <--- lithium
+- Version 3.9:
+  - Boot là nút to để trở thành phím chức năng
+
+
+
 
 ### Schematic
 
-![Schematic](https://github.com/user-attachments/assets/e3d46ba8-7496-476d-a637-2145a8161c2d)\
-![PCB](https://github.com/user-attachments/assets/98d7a48d-3c5a-41aa-a446-10d11c8853ca) \
+![Schematic](https://github.com/user-attachments/assets/f822c5d4-bf2b-4313-a17f-d63dcbe7d28e)\
+![PCB](https://github.com/user-attachments/assets/6755bcad-b7d5-416b-95b8-4818bbe2ea2f)
+
 
 
 
