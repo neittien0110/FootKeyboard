@@ -4,7 +4,7 @@
 #define SETTINGS_H
 
 /// Nhiều thông tin debug
-#define DEBUG_VERBOSE              
+//#define DEBUG_VERBOSE              
 
 /// Debug lỗi cú pháp của bộ phân tích USER_FORMAT
 //#define DEBUG_SERIAL_SYNTAX      

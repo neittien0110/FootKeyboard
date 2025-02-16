@@ -17,5 +17,5 @@ Bộ bàn phím gồm 3 thành phần
 ## Giới thiệu
  
  - Nguyễn Đức Tiến, <https://neittien0110.github.com>
- - Nguyễn Đức Hà, ha.nguyenduc2002@gmail.com, <https://github.com/hadimsctn>\
+ - Nguyễn Đức Hà, ha.nguyenduc2002@gmail.com, <https://github.com/hadimsctn>, <https://github.com/hadimsctn/FootKeyboard>\
    ![image](https://github.com/user-attachments/assets/63f16206-f1ec-4589-85ef-45aa9c0c6eeb)
