@@ -2,5 +2,9 @@ logs/xvba_debug.log
 sources/firmware/.pio
 sources/firmware/.vscode
 sources/firmware/logs
-
 sources/firmware/src/~$KeyCode.xlsm
+
+sources/webconfig/node_modules
+sources/webconfig/dist
+sources/webconfig/logs
+sources/webconfig/package-lock.json
