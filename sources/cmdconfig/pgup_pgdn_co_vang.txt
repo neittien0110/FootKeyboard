@@ -1,0 +1,5 @@
+A?=
+00={PGUP}
+01={PGDN}
+02=cos{ENTER}
+03=vawngs{ENTER}
