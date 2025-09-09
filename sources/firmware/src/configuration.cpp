@@ -10,6 +10,7 @@ const char KEY00[] = "00";   // mã cấu hình tương ứng với chân PIN_PE
 const char KEY01[] = "01";   // mã cấu hình tương ứng với chân PIN_PEDAL01
 const char KEY02[] = "02";   // mã cấu hình tương ứng với chân PIN_PEDAL02
 const char KEY03[] = "03";   // mã cấu hình tương ứng với chân PIN_PEDAL03
+const char KEY04[] = "04";   // mã cấu hình tương ứng với chân PIN_PEDAL04
 
 
 // Phân tách mỗi dòng lệnh điều khiển thành 2 vùng. key=value
@@ -86,7 +87,10 @@ void SerialConfiguration(char * SerialCommand)
         i = 2;
     } else if (strcasecmp(cmdkey, KEY03) == 0) {
         i = 3;
-    } else if (strcasecmp(cmdkey, TIME_KEY_TO_KEY) == 0) {
+    } else if (strcasecmp(cmdkey, KEY04) == 0) {
+        i = 4;
+    } 
+    else if (strcasecmp(cmdkey, TIME_KEY_TO_KEY) == 0) {
         // Thiết lập tốc độ gửi phím
         res = atoi(cmdvalue);
         if (res == 0) {

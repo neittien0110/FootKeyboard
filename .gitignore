@@ -8,3 +8,5 @@ sources/webconfig/node_modules
 sources/webconfig/dist
 sources/webconfig/logs
 sources/webconfig/package-lock.json
+
+sources/cmdconfig/__pycache__

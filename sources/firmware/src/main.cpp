@@ -38,7 +38,7 @@ enum KEYSTATUS
 };
 
 
-const uint button_pins[MAX_BUTTONS] = {PIN_PEDAL00, PIN_PEDAL01, PIN_PEDAL02, PIN_PEDAL03};
+const uint button_pins[MAX_BUTTONS] = {PIN_PEDAL00, PIN_PEDAL01, PIN_PEDAL02, PIN_PEDAL03, PIN_PEDAL04};
 uint button_prevalues[MAX_BUTTONS];   /// Giá trị trước đó, ở dạng digital 0/1 của nút bấm
 uint button_curvalues[MAX_BUTTONS];   /// Giá trị hiện thời, ở dạng digital 0/1 của nút bấm
 KEYSTATUS button_status[MAX_BUTTONS]; /// Trạng thái hiện thời của các nút bấm
@@ -75,7 +75,7 @@ void Self_Test(){
 bool TryToConnect()
 {
     // Led tắt, dành năng lượng cho kết nối BLE
-    digitalWrite(LED_BUILTIN, LED_OFF);
+    digitalWrite(LED_INDICATOR, LED_OFF);
 #ifdef DEBUG_VERBOSE
     Serial.println("Khoi tao BLE HID...");
 #endif 
@@ -106,7 +106,7 @@ bool TryToConnect()
     while (!bleKeyboardBuilder.isConnected())
     {
         led_blink = !led_blink;
-        digitalWrite(LED_BUILTIN, led_blink);
+        digitalWrite(LED_INDICATOR, led_blink);
         delayMicroseconds(100*1000);
     }
 #ifdef DEBUG_VERBOSE
@@ -120,7 +120,7 @@ void setup()
     uint8_t i;
 
     // Cấu hình cho chân pin led mặc định
-    pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(LED_INDICATOR, OUTPUT);
 
     // Thiết lập kếnh cấu hình phím và debug
     Serial.begin(115200);
@@ -148,13 +148,13 @@ void setup()
     pinMode(PIN_VAR2, INPUT);
 
     // Bật đèn báo vào chế độ kiểm tra cấu hình xuất xưởng, và tranh thủ thì hiển thị màn hình oled để không phải delay nhiều lần
-    digitalWrite(LED_BUILTIN, LED_OFF);
+    digitalWrite(LED_INDICATOR, LED_OFF);
 
     /// Khởi tạo màn hinh oled và dành thời gian chờ người dùng bấm nút cấu hình (nếu có)
     setup_oled();
 
     // Tắt đèn báo chế độ kiểm tra xuất xưởng
-    digitalWrite(LED_BUILTIN, LED_OFF);
+    digitalWrite(LED_INDICATOR, LED_OFF);
 
     // Ché độ khôi phục cấu hình xuất xưởng nếu có
     if ((digitalRead(BUTTON_BOOT) == 0 ) && (digitalRead(PIN_PEDAL01) == PEDAL_ACTIVE_LOGIC)) {
@@ -169,7 +169,7 @@ void setup()
         // Báo hiệu đã khôi phục xong
         while (true)
         {
-            Flash(LED_BUILTIN,3,255);
+            Flash(LED_INDICATOR,3,255);
         }
     }
 
@@ -199,9 +199,9 @@ void setup()
         res = BleKeyboardBuilder::RevertFormat(button_sendkeys[0], myCommand);
 
         // Đèn báo hiệu sẵn sàng
-        digitalWrite(LED_BUILTIN, LED_ON);
+        digitalWrite(LED_INDICATOR, LED_ON);
         delay(500);
-        digitalWrite(LED_BUILTIN, LED_OFF);        
+        digitalWrite(LED_INDICATOR, LED_OFF);        
         Serial.println(myRequest);  
         Serial.println("     ");  
         Serial.println(myCommand);
@@ -240,7 +240,7 @@ void setup()
     bleKeyboardBuilder.SetKeyPerMinute(k2k);
 
     // Chớp 2 lần báo hiệu kết nối bluetooth
-    Flash(LED_BUILTIN,2,1);
+    Flash(LED_INDICATOR,2,1);
 
 #ifdef DEBUG_VERBOSE
     Serial.println("......");
@@ -249,7 +249,7 @@ void setup()
     TryToConnect();
    
     // Led sáng,  báo hiệu kết nối bluetooth thành công
-    digitalWrite(LED_BUILTIN, LED_ON);
+    digitalWrite(LED_INDICATOR, LED_ON);
 
     // Đánh dấu thời điểm bắt đầu chạy vòng lặp.
 #ifdef DEBUG_VERBOSE
@@ -266,14 +266,14 @@ void setup()
         Serial.println("  - Da xong Self_Test");
 #endif    
         while (true){
-            Flash(LED_BUILTIN,2,255);   
+            Flash(LED_INDICATOR,2,255);   
         }
     }
     
     // Đèn báo hiệu sẵn sàng
-    digitalWrite(LED_BUILTIN, LED_ON);
+    digitalWrite(LED_INDICATOR, LED_ON);
     delayMicroseconds(1000*1000);
-    digitalWrite(LED_BUILTIN, LED_OFF);
+    digitalWrite(LED_INDICATOR, LED_OFF);
 
 #ifdef DEBUG_VERBOSE
     Serial.println("Khoi tao xong.");
@@ -359,7 +359,7 @@ void loop()
         Serial.print("Co phim bam: ");
 #endif         
         /// Bật đèn led báo hiệu quá trình gửi phím bắt đầu
-        digitalWrite(LED_BUILTIN, LED_ON);
+        digitalWrite(LED_INDICATOR, LED_ON);
         /// Hiện lên màn hình oled
         show_pedal(i);
 
@@ -380,7 +380,7 @@ void loop()
     if (isDown)
     {
         /// Tắt đèn led, báo hiêu quá trinh gửi phím kết thúc
-        digitalWrite(LED_BUILTIN, LED_OFF);
+        digitalWrite(LED_INDICATOR, LED_OFF);
     }
 
     // Cấu hình chức năng các phím/pedal qua Serial
