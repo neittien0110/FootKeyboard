@@ -117,10 +117,10 @@ hoặc
 
 | Key | Ý nghĩa |
 |--|--|
+|00| Phím pedal 00|
 |01| Phím pedal 01|
 |02| Phím pedal 02|
 |03| Phím pedal 03|
-|04| Phím pedal 04|
 
 ### Bảng mã kí tự bàn phím
 
@@ -197,14 +197,14 @@ Ví dụ:
 
 1. Trên máy tính, mở phần mềm soạn thảo bất kì. Đặt con trò bàn phím vào ô soạn thảo.
 1. Tắt điện thiết bị **Foot Keyboard**.
-1. Bấm phím **pedal 01** và giữ nguyên trạng thái bấm. Lưu ý KHÔNG bấm nút BOOT.
+1. Bấm phím **pedal 00** và giữ nguyên trạng thái bấm. Lưu ý KHÔNG bấm nút BOOT.
 1. Bật công tắc để khởi động.
 1. Bấm nút BOOT. Giữ cho tới khi hết đèn led xanh nháy (báo hiệu đang thực hiện kết nối bluetooth)
 1. Quan sát nội dung hiển thị trên phần mềm soạn thảo, hiển thị giống với video dưới đây.
 
 <video controls src="assets/FKB_SelfTest.mp4" title="Self Test"></video>
 
-Khi mới khởi động, tiếp điện, bấm và giữ nút BOOT và phím PEDAL 01 trong khoảng 2 giây để đưa mạch về trạng thái kiểm tra hoạt động Self_Test. Xem trạng thái [đèn led báo](#đèn-báo).
+Khi mới khởi động, tiếp điện, bấm và giữ nút BOOT và phím PEDAL 00 trong khoảng 2 giây để đưa mạch về trạng thái kiểm tra hoạt động Self_Test. Xem trạng thái [đèn led báo](#đèn-báo).
 Đồng thời hãy mở giao tiếp Serial (tốc độ 115200, 8bit, 0stop) và xem các thông tin chi tiết trên đó.
 
 ## Khôi phục cấu hình xuất xưởng
@@ -212,10 +212,10 @@ Khi mới khởi động, tiếp điện, bấm và giữ nút BOOT và phím PE
 Cấu hình xuát xưởng như sau:
 
 - Tên mạng Bluetooth BLE: Foot Keyboard
-- Chức năng Pedal 01: Page Down
-- Chức năng Pedal 02: Page Up
-- Chức năng Pedal 03: Enter
-- Chức năng Pedal 04: Ctrl+F4
+- Chức năng Pedal 00: Page Down
+- Chức năng Pedal 01: Page Up
+- Chức năng Pedal 02: Enter
+- Chức năng Pedal 03: Ctrl+F4
 
 Để khôi phục cấu hình xuất xưởng, hãy
 
