@@ -3,7 +3,8 @@
 # @synopsis:  fetchcode.ps1 [COMx]
 # @description: Tham số dòng lệnh duy nhất là cổng COm. Ví dụ fetchcode.ps1 [COM8
 #                Nếu để trống, chương trình sẽ tự dò tìm các cổng COM đang có
-# @dependences Phải cài gói esptool trước khi chạy lệnh này.
+# @dependences Phải cài gói esptool trước khi chạy lệnh này.  
+#              - pip install esptool
 # @author: Nguyen Duc Tien
 #--------------------------------------------------------------------------------
 
@@ -37,7 +38,8 @@ if ($serialPorts.Count -gt 2) {
 
 #Lấy thông tin của chip trong vùng flash
 $cmdOutput = cmd.exe /c "python -m esptool --port $serialPort chip_id"
-$line  = $cmdOutput | Select-String -Pattern 'Chip is\s+(.+)'
+#$line  = $cmdOutput | Select-String -Pattern 'Chip is\s+(.+)'
+$line  = $cmdOutput | Select-String -Pattern 'Chip type:\s+(.+)'
 # Kiểm tra nếu tìm thấy kết quả
 if ($line ) {
     # Lấy giá trị từ nhóm bắt (capture group) thứ nhất
@@ -47,6 +49,7 @@ if ($line ) {
         $chipInfo = "esp32c3"
         $BUILD_PATH=".\.pio\build\esp32-c3-devkitm-1"
     } elseif ($chipInfo -match "esp32"){
+        $chipInfo="esp32"
         $BUILD_PATH=".\.pio\build\esp32-wroom-32"
     }
 } else {

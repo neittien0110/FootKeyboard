@@ -5,6 +5,7 @@
 
 
 const char TIME_KEY_TO_KEY[] = "TK";   // ma cấu hình tương ứng với khoảng thời gian trễ giữa các phím kí tự gửi đi
+const char BLUETOOTH_NAME[] = "BN";   // mã xem toàn bộ thông tin cáu hình
 const char PRINT_ALL[] = "A?";   // mã xem toàn bộ thông tin cáu hình
 const char KEY00[] = "00";   // mã cấu hình tương ứng với chân PIN_PEDAL00
 const char KEY01[] = "01";   // mã cấu hình tương ứng với chân PIN_PEDAL01
@@ -90,14 +91,24 @@ void SerialConfiguration(char * SerialCommand)
     } else if (strcasecmp(cmdkey, KEY04) == 0) {
         i = 4;
     } 
-    else if (strcasecmp(cmdkey, TIME_KEY_TO_KEY) == 0) {
+    else if (strcasecmp(cmdkey, BLUETOOTH_NAME) == 0) {
+        // Thay đôi tên mạng Bluetooth
+        if (strlen(cmdvalue) < 3 || strlen(cmdvalue) > 20 ) {
+            Serial.println("Error: ten bluetooth phai từ 3 tới 20 ky tu.");    
+            return;
+        }
+        SaveScalarSettings(cmdvalue ,0);
+        Serial.print(cmdvalue);
+        Serial.print("Info: OK");
+        return;
+    }else if (strcasecmp(cmdkey, TIME_KEY_TO_KEY) == 0) {
         // Thiết lập tốc độ gửi phím
         res = atoi(cmdvalue);
         if (res == 0) {
             Serial.println("Error: toc do do phim phai la so nguyen duong.");    
         }
         bleKeyboardBuilder.SetKeyPerMinute(res);
-        SaveScalarSettings(DEFAULT_BLENAME ,res);
+        SaveScalarSettings(NULL ,res);
         Serial.print("Info: thiet lap toc do go phim ");
         Serial.print(res);
         Serial.println(" key/phut.");
@@ -105,6 +116,10 @@ void SerialConfiguration(char * SerialCommand)
         return;
     } else if (strcasecmp(cmdkey, PRINT_ALL) == 0) { 
         /// Hiện ra các thông số cấu hình
+        res = bleKeyboardBuilder.GetKeyPerMinute();
+        ///  0. Hiển thị tên mạng bluetooth
+        Serial.print("Info: Ten mang Bluetooth ");
+        GetBluetoothNameSetting(cmdkey);
         ///  1. Hiển thị tốc độ gửi phím
         res = bleKeyboardBuilder.GetKeyPerMinute();
         Serial.print("Info: toc do go phim ");

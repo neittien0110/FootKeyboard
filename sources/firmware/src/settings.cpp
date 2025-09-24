@@ -57,6 +57,21 @@ void ResetFactorySetting()
   EEPROM.end();
 }
 
+/**
+ * @brief Đọc thông tin cấu hình lưu trữ trong bộ nhớ vĩnh viễn 
+ * @param blename  Tên mạng Bluetooth
+ */   
+void GetBluetoothNameSetting(char * blename)
+{  uint8_t i;    
+    EEPROM.begin(EEPROM_SIZE);
+    // Đọc tên mạng BLE. Dộ dài không quá 15 kí tự. Ở vị trí đầu tiên
+    EEPROM.readString(0, blename, MAX_BLUETOOTH_NAME);
+    EEPROM.end();
+
+#ifdef DEBUG_VERBOSE
+    Serial.println("Dong EEPROM");
+#endif 
+}
 
 /**
  * @brief Đọc thông tin cấu hình lưu trữ trong bộ nhớ vĩnh viễn 
@@ -110,19 +125,22 @@ void SaveKeyCodeSetting(int key, char * value)
 
 /**
  * @brief Lưu thông tin cấu hình vào EEPROM
- * @param blename  Tên mạng Bluetooth
- * @param time_k2k Thời gian trễ giữa 2 lần gửi phím 
+ * @param blename  Tên mạng Bluetooth. = null nếu không thay đổi
+ * @param time_k2k Thời gian trễ giữa 2 lần gửi phím. =0 nếu không thay đổi
  * @see  Xem Cấu trúc dữ liệu vùng EEPROM
  */
 void SaveScalarSettings(const char * blename, uint16_t time_k2k)
 {
     EEPROM.begin(EEPROM_SIZE);
-    // Đọc tên mạng BLE. Dộ dài không quá 15 kí tự. Điểm bắt đầu 0.
-    EEPROM.writeString(0, blename);
+    if (blename != NULL) {
+        // Đọc tên mạng BLE. Dộ dài không quá 15 kí tự. Điểm bắt đầu 0.
+        EEPROM.writeString(0, blename); 
+    }
 
-    // Tốc độ gõ bàn phím. Điểm bắt đầu ngay sau phần thông tin Bluetooth name
-    EEPROM.writeInt(MAX_BLUETOOTH_NAME, time_k2k);
-
+    if (time_k2k != 0) {
+        // Tốc độ gõ bàn phím. Điểm bắt đầu ngay sau phần thông tin Bluetooth name
+        EEPROM.writeInt(MAX_BLUETOOTH_NAME, time_k2k);
+    }
     EEPROM.end();
 }
 

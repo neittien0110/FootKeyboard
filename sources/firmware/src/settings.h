@@ -75,8 +75,8 @@
 /// Vùng không gian chứa các thông số cấu hình thiết bị BLE Bluetooth dạng vô hướng, như là thời gian trễ.. và tên
 #define MAX_SCALAR_AREA 32
 
-/// Chứa tên mạng BLE Bluetooth. Tối đã 15 kí tự + \0.
-#define MAX_BLUETOOTH_NAME 16
+/// Chứa tên mạng BLE Bluetooth. Tối đã 20 kí tự + \0.
+#define MAX_BLUETOOTH_NAME 21
 
 // Tốc độ gõ kí tự mặc định trong 1 phút
 #define DEFAULT_KEYS_PER_MINUTE 250
@@ -95,9 +95,15 @@ void ResetFactorySetting();
 void GetSettings(char * blename, uint16_t * time_k2k, void * area);
 
 /**
+ * @brief Đọc tên mạng Bluetooth đã lưu trữ trong Flash
+ * @param blename [out] Tên mạng BLE Bluetooth
+ */
+void GetBluetoothNameSetting(char * blename);
+
+/**
  * @brief Lưu cấu hình chức năng vào bộ nhớ Flash
- * @param blename [in] Tên mạng BLE Bluetooth
- * @param time_k2k [in] Tốc độ gõ bàn phím
+ * @param blename  Tên mạng Bluetooth. = null nếu không thay đổi
+ * @param time_k2k Thời gian trễ giữa 2 lần gửi phím. =0 nếu không thay đổi
  */
 void SaveScalarSettings(const char * blename, uint16_t time_k2k);
 
