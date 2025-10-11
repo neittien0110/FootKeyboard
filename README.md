@@ -11,13 +11,20 @@ Bộ bàn phím gồm 3 thành phần
 3. [Webconfig](https://serial.toolhub.app/footk) dùng thay đổi chức năng cho các nút bấm của bàn phím *nếu cần*. Ví dụ một nút bấm pedal có thể tương đương với phím PageUp, hoặc LeftArrow, hoặc Ctrl+F4.\
    <img width="515" height="490" alt="image" src="https://github.com/user-attachments/assets/d35c4ff1-43c3-45b2-b6be-4b86e00b2002" />
 
-
 ## Hướng dẫn sử dụng
 
-  [Xem tại đây](sources/firmware/README.md)
+  [Xem tại đây](sources/firmware/README.md)\
+
+  Video sử dụng:\
+  [![Video sử dụng](https://i3.ytimg.com/vi/tscH_ZdQ-B4/sddefault.jpg)](https://youtu.be/tscH_ZdQ-B4)\
+  Video cấu hình qua cloud:\
+  [![Video cấu hình qua cloud](https://i3.ytimg.com/vi/RDEkcEQW_zs/sddefault.jpg)](https://youtu.be/RDEkcEQW_zs)\
+  Video minigame:\
+  [![Video minigame](https://i3.ytimg.com/vi/JTsgQ1OYAis/sddefault.jpg)](https://youtu.be/JTsgQ1OYAis)\
 
 ## Giới thiệu
- 
- - Nguyễn Đức Tiến, <https://neittien0110.github.com>
- - Nguyễn Đức Hà, ha.nguyenduc2002@gmail.com, <https://github.com/hadimsctn>, <https://github.com/hadimsctn/FootKeyboard>\
-   ![image](https://github.com/user-attachments/assets/63f16206-f1ec-4589-85ef-45aa9c0c6eeb)
+
+- Nguyễn Đức Tiến, <https://neittien0110.github.com>
+- Nguyễn Đức Hà, ha.nguyenduc2002@gmail.com, <https://github.com/hadimsctn>, <https://github.com/hadimsctn/FootKeyboard>\
+  ![image](https://github.com/user-attachments/assets/63f16206-f1ec-4589-85ef-45aa9c0c6eeb)
+- Trần Thị Lan Anh, 20215180, <https://github.com/lanhhtran/FootKeyboard>
